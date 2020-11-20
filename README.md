@@ -1,4 +1,4 @@
-# Flutter 1.22.3 Dart SDK 2.10.3 FloatingActionButton 浮动按钮控件 实现类似闲鱼App底部导航凸起按钮 + 命名路由
+# Flutter 1.22.3 Dart SDK 2.10.3 Radio控件 Switch RadioListTile SwitchListTile以及表单组件实现一个简单的学员登记系统
 
 A new Flutter application.
 
@@ -12,3 +12,4 @@ A new Flutter application.
 6、返回根路由<br>
 7、路由替换<br>
 8、类似闲鱼App底部导航凸起按钮<br>
+9、Flutter 表单
