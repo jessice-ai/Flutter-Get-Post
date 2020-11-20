@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class sunPicture extends StatefulWidget{
@@ -12,23 +13,32 @@ class sunPicture extends StatefulWidget{
 }
 
 class sunPictureSon extends State{
+  var sunFlag = true;
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     //throw UnimplementedError();
     return Container(
-      child: RaisedButton(
-        child: Text("图片"),
-        textColor: Theme.of(context).bottomAppBarColor, //定义按钮主题
-        onPressed: (){
-          //命名路由跳转到某个页面
-          Navigator.pushNamed(context, '/sinners',arguments:{
-            "id":5,
-            "title":"图片标题"
-          });
-        },
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Switch(
+                value: this.sunFlag,
+                onChanged: (value){
+                  setState(() {
+                      this.sunFlag = value;
+                      print("${value}");
+                  });
+                }
+            )
+          ],
+        ),
       ),
     );
   }
 
 }
+

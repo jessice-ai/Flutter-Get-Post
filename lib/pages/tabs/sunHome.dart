@@ -47,6 +47,17 @@ class sunHomeSon extends State{
           },
           color: Theme.of(context).accentColor, //颜色主题
           textTheme: ButtonTextTheme.primary, //文本主题
+        ),
+        SizedBox(height: 30,),
+        ///向有状态组件，StatefulWidget 传递参数
+        RaisedButton(
+          child: Text("跳转到Form表单"),
+          onPressed: (){
+            //命名路由跳转到某个页面
+            Navigator.pushNamed(context, '/sform');
+          },
+          color: Theme.of(context).accentColor, //颜色主题
+          textTheme: ButtonTextTheme.primary, //文本主题
         )
 
         // SizedBox(height: 20.0,),
