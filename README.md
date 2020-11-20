@@ -1,4 +1,4 @@
-# flutter_app
+# Flutter 1.22.3 Dart SDK 2.10.3 FloatingActionButton 浮动按钮控件 实现类似闲鱼App底部导航凸起按钮 + 命名路由
 
 A new Flutter application.
 
@@ -11,3 +11,4 @@ A new Flutter application.
 5、向有状态组件，StatefulWidget 传递参数<br>
 6、返回根路由<br>
 7、路由替换<br>
+8、类似闲鱼App底部导航凸起按钮<br>
