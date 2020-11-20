@@ -3,7 +3,7 @@ import 'sunCategory.dart';
 import 'sunSetting.dart';
 import 'sunHome.dart';
 import 'sunMy.dart';
-
+import 'sunPicture.dart';
 /**
  * StatelessWidget 无状态组件
  * StatefulWidget 有状态组件，点击页面脚本出发页面数据发生变化
@@ -29,7 +29,8 @@ class _sunFooterTabsContentState extends State{
     sunHome(),
     sunCategory(),
     sunSetting(),
-    sunMy()
+    sunPicture(),
+    sunMy(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -71,9 +72,14 @@ class _sunFooterTabsContentState extends State{
             title:Text("分类"),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            // ignore: deprecated_member_use
-            title:Text("设置"),
+          icon: Icon(Icons.settings),
+          // ignore: deprecated_member_use
+            title:Text("发布"),
+          ),
+          BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle_outlined),
+          // ignore: deprecated_member_use
+            title:Text("图片"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_outlined),
@@ -83,6 +89,44 @@ class _sunFooterTabsContentState extends State{
 
         ],
       ),
+//显示浮动按钮控件 FloatingActionButton
+      floatingActionButton:Container(
+        //floatingActionButton大小
+        width: 60,
+        height: 60,
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          //floatingActionButton背景颜色
+          color: Colors.white,
+          //floatingActionButton背景变成圆形
+          borderRadius: BorderRadius.circular(30), //设置宽度的一般
+        ),
+        child: FloatingActionButton(
+          //浮动按钮内部图标
+          child: Icon(Icons.add,color: Colors.white,size: 40,),
+          //点击事件
+          onPressed: (){
+            //切换到分类页面
+            setState(() {
+              this._currentIndex = 2;
+            });
+          },
+          //阴影
+          //elevation: 10.0,
+          //默认背景颜色,三元运算符
+          backgroundColor: this._currentIndex==2?Colors.deepOrange:Colors.cyan,
+          //backgroundColor: Colors.deepOrange,
+        ),
+      ),
+      /**
+       * 控制 FloatingActionButton 浮动按钮控件位置
+       * centerFloat 底部中间位置
+       * endFloat 右下角
+       * centerDocked 底部中间位置，必centerFloat 还要往下一点
+       * centerTop 顶部中间位置
+       * startTop 左上角
+       */
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
