@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'pages/tabs/Routes.dart';
 
 
@@ -29,6 +30,16 @@ class sunApp extends StatelessWidget {
      *  onGenerateRoute 命名路由传递参数
      */
     return MaterialApp(
+      localizationsDelegates: [
+        //此处
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        //此处
+        const Locale('zh', 'CH'),
+        const Locale('en', 'US'),
+      ],
       //home: sunFooterTabsContent(),
       initialRoute: '/sunTags',  //这个是App初始化时候加载那个路由
       //theme 主体
@@ -36,6 +47,7 @@ class sunApp extends StatelessWidget {
       // onGenerateRoute 设置为命名路由 传递参数
       // ignore: missing_return
       onGenerateRoute: onGenerateRoute,
+
     );
   }
 }
