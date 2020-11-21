@@ -79,6 +79,15 @@ class sunHomeSon extends State{
           color: Theme.of(context).accentColor, //颜色主题
           textTheme: ButtonTextTheme.primary, //文本主题
         ),
+        RaisedButton(
+          child: Text("Dialog"),
+          onPressed: (){
+            //命名路由跳转到某个页面
+            Navigator.pushNamed(context, '/sunlog');
+          },
+          color: Theme.of(context).accentColor, //颜色主题
+          textTheme: ButtonTextTheme.primary, //文本主题
+        ),
 
 
         // SizedBox(height: 20.0,),
