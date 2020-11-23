@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'sunGoodsList.dart';
+import 'package:flutter_app/pages/components/sunMyDialog.dart';
+
 class sunHome extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
@@ -85,6 +86,28 @@ class sunHomeSon extends State{
             //命名路由跳转到某个页面
             Navigator.pushNamed(context, '/sunlog');
           },
+          color: Theme.of(context).accentColor, //颜色主题
+          textTheme: ButtonTextTheme.primary, //文本主题
+        ),
+        RaisedButton(
+          child: Text("Toast"),
+          onPressed: (){
+            //命名路由跳转到某个页面
+            Navigator.pushNamed(context, '/sunoast');
+          },
+          color: Theme.of(context).accentColor, //颜色主题
+          textTheme: ButtonTextTheme.primary, //文本主题
+        ),
+        RaisedButton(
+          child: Text("自定义Dialog组件"),
+          onPressed: (){
+                showDialog(context: context,builder: (context){
+                  return sunMyDialog(
+                    suntitle: "标题",
+                    suncontent: "内容",
+                  );
+                });
+            },
           color: Theme.of(context).accentColor, //颜色主题
           textTheme: ButtonTextTheme.primary, //文本主题
         ),

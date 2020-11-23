@@ -11,6 +11,7 @@ import 'sunForm.dart';
 import 'sunData.dart';
 import 'sunCupertinoDatePicker.dart';
 import 'sunDialog.dart';
+import 'sunToast.dart';
 
 // 命名路由需定义在 MaterialApp 中，接收的数据是Map类型，跟别名差不多，比如 加载名字为 sunGoodsList 的路由就是加载后面对应的控件
 final routes = {
@@ -26,7 +27,7 @@ final routes = {
   "/sdata":(context)=>sunData(),
   "/sunCupert":(context)=>sunCupertinoDatePicker(),
   "/sunlog":(context)=>sunDialog(),
-
+  "/sunoast":(context)=>sunToast(),
 };
 
 // onGenerateRoute 命名路由传递参数，一下代码是固定写法，直接拷贝即可
