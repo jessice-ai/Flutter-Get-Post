@@ -65,6 +65,7 @@ class sunNewsSon extends State{
         ),
       ),
       //body 主体
+      //循环数据方式一
       body: this._sunList.length>0?ListView(
           children: this._sunList.map((value){
             return ListTile(
@@ -72,6 +73,15 @@ class sunNewsSon extends State{
             );
           }).toList() ,
       ):Text("数据加载中"),
+      //循环数据方式二
+      // body: this._sunList.length>0?ListView.builder(
+      //   itemCount: this._sunList.length,
+      //   itemBuilder: (context,index){
+      //     return ListTile(
+      //       title: Text("${this._sunList[index]["tags"]}"),
+      //     );
+      //   },
+      // ):Text("数据加载中"),
     );
   }
 

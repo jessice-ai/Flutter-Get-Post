@@ -33,6 +33,7 @@ dependencies:
   date_format: ^1.0.9
   flutter_cupertino_date_picker: ^1.0.26+2
   http: ^0.12.2
+  dio: ^3.0.10
 
 
 dev_dependencies:
