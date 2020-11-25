@@ -79,12 +79,12 @@ class _sunFooterTabsContentState extends State{
           BottomNavigationBarItem(
           icon: Icon(Icons.account_circle_outlined),
           // ignore: deprecated_member_use
-            title:Text("图片"),
+            title:Text("聊天"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_outlined),
             // ignore: deprecated_member_use
-            title:Text("我的"),
+            title:Text("个人中心"),
           )
 
         ],
