@@ -35,6 +35,7 @@ dependencies:
   flutter_cupertino_date_picker: ^1.0.26+2
   http: ^0.12.2
   dio: ^3.0.10
+  shared_preferences: ^0.5.12+4
 
 
 dev_dependencies:
