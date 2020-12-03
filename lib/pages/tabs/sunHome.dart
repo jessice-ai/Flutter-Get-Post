@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'sunDataSearch.dart';
 
 class sunHome extends StatelessWidget {
   @override
@@ -99,15 +100,31 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       setState(() {
         this._couponCate = sunResponse.data['data'];
       });
+
+      _tabController = TabController(length: _couponCate.length, vsync: this);
+      _tabController.addListener(() {
+        //打印选中项索引值
+        var index = _tabController.index;
+        //print("Jessice:BBBBBBBBB ${index}");
+        //print("Jessice :${index}");
+        //var MapDataCat = this._couponCate[index];
+        //var catid = MapDataCat['id'];
+        setState(() {
+          this._sunTabIndex = index;
+        });
+
+      });
     } else {
       _sunToast("网络请求异常!");
     }
   }
 
-
+  var _sunTabIndex=0;
   //优惠券结构
   Widget _getData(context, index) {
-    var tabIndex = _sunTabIndex;
+    var tabIndex = this._sunTabIndex;
+    //print("Jessice:A ${tabIndex}");
+
     //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
     return Container(
       alignment: Alignment.center,
@@ -148,28 +165,15 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
     );
   }
 
-  var _sunTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
     _sunDioPostData(); //获取优惠券
     _sunDioPostCateData(); //获取栏目
-    print("Jessice   ${this._couponCate.length}");
-    _tabController = TabController(length: 11, vsync: this);
-    //侦听
-    _tabController.addListener(() {
-      //打印选中项索引值
-      var index = _tabController.index;
-      //print("Jessice :${index}");
-      //var MapDataCat = this._couponCate[index];
-      //var catid = MapDataCat['id'];
-      setState(() {
-        this._sunTabIndex = index;
-      });
-    });
-
 
   }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -179,9 +183,10 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
      * 顾判断是必须做的，否则会报错
      */
     if(this._couponCate.length!=0){
+
       return  Scaffold(
         appBar: AppBar(
-          title: Text("分类"),
+          // title: Text("分类"),
           bottom: TabBar(
             isScrollable: true, //多Tab不叠加,滑动展示
             controller: this._tabController, //注意，必须得加
@@ -192,6 +197,14 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
               );
             }).toList(),
           ),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.search),
+                onPressed: (){
+                  showSearch(context: context, delegate: sunDataSearch());
+                }
+            ),
+          ],
         ),
         body: TabBarView(
           controller: this._tabController, //注意，必须得加
