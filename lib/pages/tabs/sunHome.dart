@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -95,39 +98,17 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       //print(sunResponse.data['data']);
       setState(() {
         this._couponCate = sunResponse.data['data'];
-
       });
     } else {
       _sunToast("网络请求异常!");
     }
   }
-  var _sunTabIndex = 0;
-  @override
-  void initState() {
-    super.initState();
 
-    _sunDioPostData(); //获取优惠券
-    _sunDioPostCateData(); //获取栏目
-    _tabController = TabController(length: 11, vsync: this);
-    //侦听
-    _tabController.addListener(() {
-      //打印选中项索引值
-      var index = _tabController.index;
-      print("Jessice :${index}");
-      var MapDataCat = this._couponCate[index];
-      var catid = MapDataCat['id'];
-      setState(() {
-        this._sunTabIndex = index;
-      });
-      //_sunDioPostData(catid: catid);
-    });
-  }
 
   //优惠券结构
   Widget _getData(context, index) {
     var tabIndex = _sunTabIndex;
-    //print("SOOOOO  ${_sunTabIndex}");
-    //print("aaaa - ${_couponData[tabIndex]}");
+    //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
     return Container(
       alignment: Alignment.center,
       //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
@@ -163,48 +144,86 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       //Container 边框
       decoration: BoxDecoration(
           //border: Border.all(color:Colors.black26,width: 1)
-          ),
+      ),
     );
   }
 
+  var _sunTabIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _sunDioPostData(); //获取优惠券
+    _sunDioPostCateData(); //获取栏目
+    print("Jessice   ${this._couponCate.length}");
+    _tabController = TabController(length: 11, vsync: this);
+    //侦听
+    _tabController.addListener(() {
+      //打印选中项索引值
+      var index = _tabController.index;
+      //print("Jessice :${index}");
+      //var MapDataCat = this._couponCate[index];
+      //var catid = MapDataCat['id'];
+      setState(() {
+        this._sunTabIndex = index;
+      });
+    });
+
+
+  }
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     //throw UnimplementedError();
-
-    return  Scaffold(
-      appBar: AppBar(
-        title: Text("分类"),
-        bottom: TabBar(
-          isScrollable: true, //多Tab不叠加,滑动展示
+    /**
+     * 因数据异步远程获取
+     * 顾判断是必须做的，否则会报错
+     */
+    if(this._couponCate.length!=0){
+      return  Scaffold(
+        appBar: AppBar(
+          title: Text("分类"),
+          bottom: TabBar(
+            isScrollable: true, //多Tab不叠加,滑动展示
+            controller: this._tabController, //注意，必须得加
+            tabs: this._couponCate.map((value) {
+              return Tab(
+                text: "${value['name']}",
+                //icon: Icon(Icons.directions_bike),
+              );
+            }).toList(),
+          ),
+        ),
+        body: TabBarView(
           controller: this._tabController, //注意，必须得加
-          tabs: this._couponCate.map((value) {
-            return Tab(
-              text: "${value['name']}",
-              //icon: Icon(Icons.directions_bike),
-            );
+          children: this._couponCate.map((e){
+            return Container(
+                child: GridView.builder(
+                  padding: EdgeInsets.all(10), //使用padding 把上下左右留出空白距离
+                  //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisSpacing: 10.0, //左右两个之间距离
+                    mainAxisSpacing: 5.0, //上下两个之间距离
+                    crossAxisCount: 2, //列数2
+                    childAspectRatio: 0.75, //宽度与高度的比例，通过这个比例设置相应高度
+                  ),
+                  itemCount: _couponData.length, //指定循环的数量
+                  itemBuilder: this._getData,
+                ));
           }).toList(),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController, //注意，必须得加
-        children: this._couponCate.map((e){
-          return Container(
-              child: GridView.builder(
-                padding: EdgeInsets.all(10), //使用padding 把上下左右留出空白距离
-                //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisSpacing: 10.0, //左右两个之间距离
-                  mainAxisSpacing: 5.0, //上下两个之间距离
-                  crossAxisCount: 2, //列数2
-                  childAspectRatio: 0.75, //宽度与高度的比例，通过这个比例设置相应高度
-                ),
-                itemCount: _couponData.length, //指定循环的数量
-                itemBuilder: this._getData,
-              ));
-        }).toList(),
-      ),
-    );
+      );
+    }else{
+      return Scaffold(
+        appBar: AppBar(
+
+        ),
+        body: Container(
+          child: Center(
+            child: Text("数据加载中..."),
+          ),
+        ),
+      );
+    }
     // return Column(
     //   crossAxisAlignment: CrossAxisAlignment.start, //横轴
     //   mainAxisAlignment: MainAxisAlignment.center,  //纵轴
