@@ -39,9 +39,9 @@ class _sunFooterTabsContentState extends State{
     // ListView 水平布局组件
     return Scaffold(
       //appBar 导航
-      appBar: AppBar(
-        title: Text('SunTitleBar'),
-      ),
+      // appBar: AppBar(
+      //   title: Text('SunTitleBar'),
+      // ),
       //body 主体
       body: this._pageList[this._currentIndex], //配置对应的 控件选中
       //底部导航条
