@@ -22,7 +22,7 @@ class sunDataSearch extends SearchDelegate<String>{
     // TODO: implement buildActions
     //throw UnimplementedError();
     //显示右边关闭按钮
-    return [IconButton(icon: Icon(Icons.clear), onPressed: (){
+    return [IconButton(icon: Icon(Icons.close,color: Colors.black87,), onPressed: (){
       query = "";
     })];
 
@@ -40,6 +40,7 @@ class sunDataSearch extends SearchDelegate<String>{
         icon: AnimatedIcon(
           icon: AnimatedIcons.menu_arrow,
           progress: transitionAnimation,
+          color: Colors.black87,
         )
         , onPressed: (){
       close(context, null);
@@ -86,11 +87,11 @@ class sunDataSearch extends SearchDelegate<String>{
           //title: Text(_sunActionList[index]),
           title: RichText(text: TextSpan(
               text: _sunActionList[index].substring(0,query.length),
-              style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.black87,fontWeight: FontWeight.bold,fontSize: 16.0),
               children: [
                 TextSpan(
                     text: _sunActionList[index].substring(query.length),
-                    style: TextStyle(color: Colors.grey)
+                    style: TextStyle(color: Colors.black87,fontSize: 16.0)
                 )
               ]
           ),),
