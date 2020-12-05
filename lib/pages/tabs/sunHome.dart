@@ -77,6 +77,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       var sunDio = Dio();
       Response sunResponse;
       //print("栏目ID:${catid}");
+      if (isReflash == true) { this._sunPage = 1; }
       Map sunJsonData = {"catid": catid, "uid": 1, "page": _sunPage};
       print("POST值: ${sunJsonData}");
       sunResponse = await sunDio.post(
@@ -91,23 +92,29 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       //   await sunDio.post("http://192.168.9.45:8083/tbcouponapi/index");
       // }
       // print("返回数据:${sunResponse.data['code']}");
-
+      //print("${isReflash}");
       if (sunResponse.data['code'] == 200) {
         //print(sunResponse.data['data']);
-        if(isReflash==true){
+        if (isReflash == true) {
           //下拉刷新重置数组
-            isReflash == false;
-          this._couponData = sunResponse.data['data'];
-        }else{
+          setState(() {
+            this._couponData = sunResponse.data['data'];
+            isLoading = false;
+            isReflash = false;
+          });
+          //print("重置完${isReflash}");
+          //print("优惠券数组重置，现在有:${_couponData.length} 条数据");
+        } else {
           //上拉加载新数据
           setState(() {
             isLoading = false;
+            //isReflash == false;
             //this._couponData = sunResponse.data['data'];
             this._couponData.addAll(sunResponse.data['data']);
           });
+          //print("优惠券数组增加，现在有:${_couponData.length} 条数据");
         }
 
-        print("优惠券有几条数据:${_couponData.length}");
       } else {
         setState(() {
           isLoading = false;
@@ -125,8 +132,8 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   Widget _buildProgressIndicator() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child:  Center(
-        child:  Opacity(
+      child: Center(
+        child: Opacity(
           opacity: isLoading ? 1.0 : 00,
           child: new CircularProgressIndicator(),
         ),
@@ -175,51 +182,51 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   Widget _getData(context, index) {
     var tabIndex = this._sunTabIndex;
     //print("Jessice:A ${tabIndex}");
-      if (tabIndex == 0) {
-        return Container();
-      } else {
-        if (_couponData.isNotEmpty) {
-          return Container(
-            alignment: Alignment.center,
-            //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
-            child: ListView(
-              shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
-              physics: NeverScrollableScrollPhysics(), //禁用滑动事件
+    if (tabIndex == 0) {
+      return Container();
+    } else {
+      if (_couponData.isNotEmpty) {
+        return Container(
+          alignment: Alignment.center,
+          //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
+          child: ListView(
+            shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
+            physics: NeverScrollableScrollPhysics(), //禁用滑动事件
 
-              children: <Widget>[
-                Image.network(
-                  _couponData[index]["small_images"],
-                  fit: BoxFit.cover,
+            children: <Widget>[
+              Image.network(
+                _couponData[index]["small_images"],
+                fit: BoxFit.cover,
+              ),
+              //设置一个空白的高度，方式1
+              // Container(
+              //   height: 10,
+              // ),
+              //设置一个空白的高度，方式1，建议
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                _couponData[index]["title"],
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                style: TextStyle(
+                  fontSize: 14,
+                  letterSpacing: 1, //字母间隙
                 ),
-                //设置一个空白的高度，方式1
-                // Container(
-                //   height: 10,
-                // ),
-                //设置一个空白的高度，方式1，建议
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  _couponData[index]["title"],
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis, //溢出之后显示三个点
-                  style: TextStyle(
-                    fontSize: 14,
-                    letterSpacing: 1, //字母间隙
-                  ),
-                ),
-              ],
-            ),
-            //Container 边框
-            decoration: BoxDecoration(
-                //border: Border.all(color:Colors.black26,width: 1)
-                ),
-          );
-        } else {
-          return Container();
-        }
+              ),
+            ],
+          ),
+          //Container 边框
+          decoration: BoxDecoration(
+              //border: Border.all(color:Colors.black26,width: 1)
+              ),
+        );
+      } else {
+        return Container();
       }
+    }
 
     //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
   }
@@ -266,7 +273,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
     if (this._couponCate.length != 0) {
       return Scaffold(
         appBar: AppBar(
-          title: searchInput(),
+          //title: searchInput(),
           backgroundColor: Colors.white, //导航背景颜色
           // title: Text("分类"),
           bottom: TabBar(
@@ -290,14 +297,14 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           actions: <Widget>[
             new Container(
                 child: RaisedButton.icon(
-              icon: Icon(
-                Icons.search,
-              ),
               label: Text("搜索"),
               color: Colors.white, //背景颜色
               onPressed: () {
                 showSearch(context: context, delegate: sunDataSearch());
               },
+              icon: Icon(
+                Icons.search,
+              ),
             )),
           ],
         ),
@@ -327,9 +334,10 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
                     itemCount: _couponData.length + 1,
                     //指定循环的数量
                     itemBuilder: (BuildContext context, int index) {
+                      //如果循环到最后一个宝贝，显示加载图标
                       if (index == _couponData.length) {
                         return _buildProgressIndicator();
-                      }else{
+                      } else {
                         return this._getData(context, index);
                       }
                     },
@@ -379,45 +387,46 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
         offset: Offset(0, 30),
         padding: EdgeInsets.zero,
         //initialValue: _simpleValue,
-        onSelected: on_so_type_MenuSelection,
+        //onSelected: on_so_type_MenuSelection,
         child: Container(
           child: Row(
             children: <Widget>[
-              Text(
-                _list_so_type[so_type],
-                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
-              ),
+
               Icon(
-                Icons.arrow_drop_down,
+                Icons.search,
                 color: Colors.grey[800],
               ),
+              // Text(
+              //   _list_so_type[so_type],
+              //   style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+              // ),
             ],
           ),
           margin: EdgeInsets.only(left: 8),
         ),
         itemBuilder: (BuildContext context) {
           return <PopupMenuEntry<int>>[
-            PopupMenuItem<int>(
-                value: 0,
-                child: Row(children: [
-                  Icon(Icons.favorite_border, color: Colors.deepOrange),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text('宝贝'),
-                ])),
-            PopupMenuItem<int>(
-                value: 1,
-                child: Row(children: [
-                  Icon(
-                    Icons.person,
-                    color: Colors.green,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text('用户')
-                ])),
+            // PopupMenuItem<int>(
+            //     value: 0,
+            //     child: Row(children: [
+            //       Icon(Icons.favorite_border, color: Colors.deepOrange),
+            //       SizedBox(
+            //         width: 8,
+            //       ),
+            //       Text('宝贝'),
+            //     ])),
+            // PopupMenuItem<int>(
+            //     value: 1,
+            //     child: Row(children: [
+            //       Icon(
+            //         Icons.person,
+            //         color: Colors.green,
+            //       ),
+            //       SizedBox(
+            //         width: 8,
+            //       ),
+            //       Text('用户')
+            //     ])),
           ];
         });
   }
@@ -441,9 +450,12 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           _widget_PopupMenuButton(),
           new Expanded(
             child: new TextField(
+              onTap: (){
+                showSearch(context: context, delegate: sunDataSearch());
+              },
               //autofocus: true,
               decoration: new InputDecoration.collapsed(
-                  hintText: "请输入搜索内容...",
+                  hintText: " 请输入搜索内容...",
                   hintStyle: new TextStyle(color: Colors.grey[700])),
             ),
           )
