@@ -28,7 +28,7 @@ class sunHome extends StatelessWidget {
       ),
       //theme 主体
       theme: ThemeData(primarySwatch: Colors.amber //修改主体颜色
-          ),
+      ),
     );
   }
 }
@@ -53,6 +53,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   ScrollController _scrollController = new ScrollController();
   List _couponCate = [];
   List _couponData = [];
+  List _secondaryCouponCate = []; //二级分类
   int _couponCateId = 0; //栏目ID
   int _sunPage = 1;
   bool isLoading = false;
@@ -77,7 +78,9 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
       var sunDio = Dio();
       Response sunResponse;
       //print("栏目ID:${catid}");
-      if (isReflash == true) { this._sunPage = 1; }
+      if (isReflash == true) {
+        this._sunPage = 1;
+      }
       Map sunJsonData = {"catid": catid, "uid": 1, "page": _sunPage};
       print("POST值: ${sunJsonData}");
       sunResponse = await sunDio.post(
@@ -114,7 +117,6 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           });
           //print("优惠券数组增加，现在有:${_couponData.length} 条数据");
         }
-
       } else {
         setState(() {
           isLoading = false;
@@ -145,7 +147,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-        await sunDio.post("http://192.168.9.45:8083/tbcouponapi/cat");
+    await sunDio.post("http://192.168.9.45:8083/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       //print(sunResponse.data['data']);
       setState(() {
@@ -168,10 +170,32 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           this._sunTabIndex = index;
           this._couponCateId = this._couponCate[index]['id'];
           _sunDioPostData(catid: _couponCateId);
+          _sunSecondaryColumn(catid: _couponCateId); //根据栏目ID,获取二级分类
           //print("栏目ID:${this._couponCate[index]['id']}");
         });
       });
     } else {
+      //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
+    }
+  }
+
+  _sunSecondaryColumn({catid = 0}) async {
+    Map sunJsonData = {"catid": catid, "uid": 1};
+    //print("参数:${sunJsonData}");
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "http://192.168.9.45:8083/tbcouponseconday/cat",
+        data: sunJsonData);
+    if (sunResponse.data['code'] == 200) {
+      //print("数据:${sunResponse.data['data']}");
+      setState(() {
+        this._secondaryCouponCate = sunResponse.data['data'];
+      });
+      //print("${this._secondaryCouponCate}");
+    } else {
+      setState(() {
+        this._secondaryCouponCate = [];
+      });
       //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
     }
   }
@@ -192,7 +216,6 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           child: ListView(
             shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
             physics: NeverScrollableScrollPhysics(), //禁用滑动事件
-
             children: <Widget>[
               Image.network(
                 _couponData[index]["small_images"],
@@ -220,8 +243,67 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           ),
           //Container 边框
           decoration: BoxDecoration(
-              //border: Border.all(color:Colors.black26,width: 1)
+            //border: Border.all(color:Colors.black26,width: 1)
+          ),
+        );
+      } else {
+        return Container();
+      }
+    }
+
+    //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
+  }
+
+//二级分类结构
+  Widget _getSecondaryColumn(context, index) {
+    var tabIndex = this._sunTabIndex;
+    //print("Jessice:A ${_secondaryCouponCate[index]}");
+    if (tabIndex == 0) {
+      return Container();
+    } else {
+      if (_secondaryCouponCate.isNotEmpty) {
+        return Container(
+          padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
+          alignment: Alignment.center,
+          //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
+          child: ListView(
+            shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
+            physics: NeverScrollableScrollPhysics(), //禁用滑动事件
+            children: <Widget>[
+              Container(
+                height: 20.0,
+                child: Image.network(
+                  _secondaryCouponCate[index]["cat_image"],
+                  fit: BoxFit.cover,
+                ),
               ),
+              //设置一个空白的高度，方式1
+              // Container(
+              //   height: 10,
+              // ),
+              //设置一个空白的高度，方式1，建议
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                height: 50.0,
+                child: Text(
+                  _secondaryCouponCate[index]["name"],
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                  style: TextStyle(
+                    fontSize: 14,
+                    letterSpacing: 1, //字母间隙
+                  ),
+                ),
+              )
+            ],
+          ),
+          //Container 边框
+          decoration: BoxDecoration(
+            //border: Border.all(color:Colors.black26,width: 1)
+          ),
         );
       } else {
         return Container();
@@ -241,6 +323,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
      * 侦听滚动事件
      */
     _scrollController.addListener(() {
+
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         this._sunPage++;
@@ -297,15 +380,15 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           actions: <Widget>[
             new Container(
                 child: RaisedButton.icon(
-              label: Text("搜索"),
-              color: Colors.white, //背景颜色
-              onPressed: () {
-                showSearch(context: context, delegate: sunDataSearch());
-              },
-              icon: Icon(
-                Icons.search,
-              ),
-            )),
+                  label: Text("搜索"),
+                  color: Colors.white, //背景颜色
+                  onPressed: () {
+                    showSearch(context: context, delegate: sunDataSearch());
+                  },
+                  icon: Icon(
+                    Icons.search,
+                  ),
+                )),
           ],
         ),
         body: TabBarView(
@@ -316,33 +399,103 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
                 child: Text("首页视图内容"),
               );
             } else {
-              //print(_couponData.length);
+              //print(_secondaryCouponCate.length);
               if (e["count_coupons"] > 0) {
+                //SingleChildScrollView 可滚动
                 return RefreshIndicator(
                   onRefresh: _onRefresh,
-                  child: Container(
-                      child: GridView.builder(
-                    padding: EdgeInsets.all(10),
-                    //使用padding 把上下左右留出空白距离
-                    //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisSpacing: 10.0, //左右两个之间距离
-                      mainAxisSpacing: 5.0, //上下两个之间距离
-                      crossAxisCount: 2, //列数2
-                      childAspectRatio: 0.75, //宽度与高度的比例，通过这个比例设置相应高度
-                    ),
-                    itemCount: _couponData.length + 1,
-                    //指定循环的数量
-                    itemBuilder: (BuildContext context, int index) {
-                      //如果循环到最后一个宝贝，显示加载图标
-                      if (index == _couponData.length) {
-                        return _buildProgressIndicator();
-                      } else {
-                        return this._getData(context, index);
-                      }
-                    },
+                  child: SingleChildScrollView(
                     controller: _scrollController,
-                  )),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          children: [
+
+                            Container(
+                                child: this._secondaryCouponCate.length>0?GridView.count(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  //指定循环的数量
+                                  primary: false,
+                                  scrollDirection: Axis.vertical,
+                                  crossAxisCount: 5,
+                                  childAspectRatio: 1,
+                                  children: this._secondaryCouponCate.length>0?this._secondaryCouponCate.map((e){
+                                    return SingleChildScrollView(
+                                      child: Container(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            Column(
+                                              children: [
+                                                Image.network(
+                                                  e["cat_image"],
+                                                  height: 45.0,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                SizedBox(
+                                                  height: 5.0,
+                                                ),
+                                                Text(
+                                                  e["name"],
+                                                    style:TextStyle(
+                                                        fontSize:14.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                                        color:Colors.black87 //颜色使用Colors组件，设置系统自带的颜色
+                                                      //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                                    )
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList():[],
+                                ):Container(),
+                            ),
+                            //Divider(height: 1.0,color: Colors.black12,), //线条
+                            Container(
+                                color: Colors.white,
+                                //height: 600.0,
+                                width: double.infinity,
+                                //强制container撑满整个屏幕
+                                alignment: Alignment.center,
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.all(10),
+                                  //使用padding 把上下左右留出空白距离
+                                  //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
+                                  gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisSpacing: 10.0, //左右两个之间距离
+                                    mainAxisSpacing: 5.0, //上下两个之间距离
+                                    crossAxisCount: 2, //列数2
+                                    childAspectRatio:
+                                    0.75, //宽度与高度的比例，通过这个比例设置相应高度
+                                  ),
+                                  itemCount: _couponData.length + 1,
+                                  //指定循环的数量
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    //如果循环到最后一个宝贝，显示加载图标
+                                    if (index == _couponData.length) {
+                                      return _buildProgressIndicator();
+                                    } else {
+                                      return this._getData(context, index);
+                                    }
+                                  },
+                                  //controller: _scrollController,
+                                ))
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 );
               } else {
                 return Container(
@@ -383,7 +536,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   Widget _widget_PopupMenuButton() {
     // 弹出搜索类型选项
     return new PopupMenuButton<int>(
-        //icon: Icon(Icons.arrow_drop_up,color: Colors.white,),
+      //icon: Icon(Icons.arrow_drop_up,color: Colors.white,),
         offset: Offset(0, 30),
         padding: EdgeInsets.zero,
         //initialValue: _simpleValue,
@@ -391,7 +544,6 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
         child: Container(
           child: Row(
             children: <Widget>[
-
               Icon(
                 Icons.search,
                 color: Colors.grey[800],
@@ -450,7 +602,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
           _widget_PopupMenuButton(),
           new Expanded(
             child: new TextField(
-              onTap: (){
+              onTap: () {
                 showSearch(context: context, delegate: sunDataSearch());
               },
               //autofocus: true,
