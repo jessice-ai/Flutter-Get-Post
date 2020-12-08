@@ -44,7 +44,7 @@ class sunApp extends StatelessWidget {
       //home: sunFooterTabsContent(),
       initialRoute: '/sunTags',  //这个是App初始化时候加载那个路由
       //theme 主体
-      theme: ThemeData(primarySwatch: Colors.red),//修改主体颜色
+      theme: ThemeData(primaryColor: Colors.white),//修改主体颜色
       // onGenerateRoute 设置为命名路由 传递参数
       // ignore: missing_return
 

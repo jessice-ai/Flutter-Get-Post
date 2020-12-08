@@ -14,6 +14,8 @@ import 'sunDialog.dart';
 import 'sunToast.dart';
 import 'sunDio.dart';
 import 'sunSearchBar.dart';
+import 'sunProductDetailsPage.dart';
+import 'sunCategoriesList.dart';
 import 'package:flutter_app/Screens/Welcome/welcome_screen.dart';
 
 // 命名路由需定义在 MaterialApp 中，接收的数据是Map类型，跟别名差不多，比如 加载名字为 sunGoodsList 的路由就是加载后面对应的控件
@@ -34,6 +36,8 @@ final routes = {
   "/sundio":(context)=>sunDio(),
   "/sunsearch":(context)=>sunSearchBar(),
   "/sunLogin":(context)=>WelcomeScreen(),
+  "/sunproductcontent":(context,{arguments})=>sunProductDetailsPage(arguments:arguments),
+  "/suncatlist":(context,{arguments})=>sunCategoriesList(arguments:arguments),
 };
 
 // onGenerateRoute 命名路由传递参数，一下代码是固定写法，直接拷贝即可
