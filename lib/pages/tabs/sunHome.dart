@@ -501,7 +501,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
                                                               fit: BoxFit.cover,
                                                             ),
                                                             onTap: (){
-                                                              //命名路由传值给栏目列表页
+                                                              //命名路由传值跳转到栏目列表页
                                                               Navigator.pushNamed(
                                                                   context,
                                                                   '/suncatlist',
