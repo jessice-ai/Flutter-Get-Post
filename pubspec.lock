@@ -97,6 +97,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_alibc:
+    dependency: "direct main"
+    description:
+      name: flutter_alibc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.16"
   flutter_cupertino_date_picker:
     dependency: "direct main"
     description:
@@ -392,4 +399,4 @@ packages:
     version: "4.5.1"
 sdks:
   dart: ">=2.10.0-110 <2.11.0"
-  flutter: ">=1.18.0-6.0.pre <2.0.0"
+  flutter: ">=1.20.0 <2.0.0"

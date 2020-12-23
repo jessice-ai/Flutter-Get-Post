@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'pages/tabs/Routes.dart';
 
@@ -29,6 +30,8 @@ class sunApp extends StatelessWidget {
      *  routes 命名路由
      *  onGenerateRoute 命名路由传递参数
      */
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(statusBarColor:Colors.transparent);
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [

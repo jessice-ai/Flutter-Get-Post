@@ -5,6 +5,13 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_alibc/alibc_const_key.dart';
+import 'package:flutter_alibc/flutter_alibc.dart';
+
 class sunProductDetailsPage extends StatefulWidget {
   final arguments;
 
@@ -68,6 +75,64 @@ class sunProductDetailsPageSon extends State {
       return [];
       //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
     }
+  }
+  _sunGetUserTaobaoauth() async{
+    Map sunJsonData = {"uid": _sunUserID};
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "http://192.168.9.45:8083/tbcouponseconday/getUsertb",
+        // ignore: missing_return
+        data: sunJsonData).then((value) async {
+
+          if(value.data["code"]==300) {
+            //没有授权过
+            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+              var result = await FlutterAlibc.loginTaoBao();
+              // print(
+              //     "登录淘宝  ${result.data.nick} ${result.data.topAccessToken}");
+              _sunGetUserTaobaoauthPost(
+                  result.data.nick, result.data.topAccessToken);
+            });
+
+            // print("ddddddd-------${value}");
+          }else if(value.data["code"]==400){
+            //用户未登录
+            _sunToast("请先登陆!");
+          }else if(value.data["code"]==200){
+            //print(this._sunContentData[0]['url']);
+            //有授权过
+            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+              //print(this._sunContentData[0]['url']);
+              var result = await FlutterAlibc.openByUrl(
+                  url:this._sunContentData[0]['coupon_share_url'],
+                  //backUrl: "tbopen27822502:https://h5.m.taobao.com",
+                  openType : AlibcOpenType.AlibcOpenTypeAuto,
+                  isNeedCustomNativeFailMode: true,
+                  nativeFailMode:
+                  AlibcNativeFailMode.AlibcNativeFailModeJumpH5);
+            });
+
+            //print(result);
+          }else{
+            //其他错误
+          }
+    });
+
+  }
+  _sunGetUserTaobaoauthPost(String nick,String topAccessToken) async {
+    Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "http://192.168.9.45:8083/tbcouponseconday/getItb",
+        // ignore: missing_return
+        data: sunJsonData).then((value){
+          if(value.data["code"]==200){
+            _sunToast("授权成功!");
+          }else{
+            _sunToast("授权失败!");
+          }
+    });
+
   }
   //客户收藏宝贝
   _sunFavoritesGoods({contentID = 0}) async {
@@ -394,8 +459,10 @@ class sunProductDetailsPageSon extends State {
                                 ),
                               ),
                             ),
-                            onTap: (){
-                              print("自购赚");
+                            onTap: () async {
+                              _sunGetUserTaobaoauth();
+                              // print("自购赚");
+
                             },
                           ),
                         ),

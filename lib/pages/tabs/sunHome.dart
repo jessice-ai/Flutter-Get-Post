@@ -596,7 +596,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
               } else {
                 return Container(
                   child: Center(
-                    child: Text("暂时没有数据..."),
+                    child: Text("数据加载中"),
                   ),
                 );
               }
