@@ -70,7 +70,9 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
   void dispose() {
     super.dispose();
     _scrollController.dispose(); //销魂滚动控件
-    _tabController.dispose(); //把它自己销毁
+    if(_tabController != null){
+      _tabController.dispose(); //把它自己销毁
+    }
   }
 
 //获取用户登陆数据
@@ -218,6 +220,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
     }
   }
 
+  //获取二级分类
   _sunSecondaryColumn({catid = 0}) async {
     Map sunJsonData = {"catid": catid, "uid": _sunUserID};
     //print("参数:${sunJsonData}");
@@ -484,6 +487,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
                                               0
                                           ? this._secondaryCouponCate.map((e) {
                                               return SingleChildScrollView(
+                                                physics: NeverScrollableScrollPhysics(), //不允许滚动
                                                 child: Container(
                                                   color: Colors.white,
                                                   child: Column(
@@ -496,7 +500,7 @@ class sunHomeContentState extends State with SingleTickerProviderStateMixin {
                                                           InkWell(
                                                             child:
                                                                 Image.network(
-                                                              e["cat_image"],
+                                                              "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
                                                               height: 50.0,
                                                               fit: BoxFit.cover,
                                                             ),
