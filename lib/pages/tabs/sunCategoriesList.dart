@@ -27,11 +27,13 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
   bool isReflash = false;
   int _sunPage = 1;
   String _sunName;
+  int _tabSunControllerInt = 0;
   int _sunUserID;
   List _sonCategoryData = [];
   List _sonProductsList = [];
   TabController _tabController;
   int _sunIndex=0;
+  String _dataLoading = "数据加载中";
   bool sunLoginStatus = false;
 
   _sunToast(String message) {
@@ -52,8 +54,9 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
     super.initState();
     //验证用户登陆状态
     _sunTopCatid = this.arguments["catid"];
-    _sunSonCatid = 0; //默认进来是全部
+    _sunSonCatid = this.arguments["soncatid"]!=null?this.arguments["soncatid"]:0; //默认进来是全部
     _sunName = this.arguments["name"];
+    _tabSunControllerInt = this.arguments["_tabSunControllerInt"];
     initFromCache().then((result) {
       this._sunUserID = result;
       print("用户ID:${result}");
@@ -85,14 +88,20 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
   initFromCache() async {
     SharedPreferences prefs = await _sunPrefs;
     int intValue = prefs.getInt("sunId"); //获取用户登陆ID
-    print("${intValue}");
-    return intValue;
+    //print("${intValue}");
+    if (intValue != "" && intValue != null) {
+      return intValue;
+    }else{
+      //用户登陆
+      //命名路由跳转到某个页面
+      Navigator.pushNamed(context, '/sunLogin');
+    }
   }
 
   //获取子分类
   _getSonCategory() async {
     Map sunJsonData = {"catid": this.arguments["catid"], "uid": _sunUserID};
-    //print("参数:${sunJsonData}");
+    //print("参数sun:${sunJsonData}");
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
@@ -102,23 +111,36 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
         // ignore: missing_return
         .then((value) {
       if (value.data['code'] == 200) {
+
         setState(() {
           _sonCategoryData = value.data['data'];
         });
-        //print("${_sonCategoryData.length}条");
+
+        // print("${_sonCategoryData.length}条");
         _tabController =
             TabController(length: _sonCategoryData.length, vsync: this);
+
+        // ignore: unnecessary_statements
+        //print("传过来的值:${this.arguments["_tabSunControllerInt"]}");
+        if(this._tabSunControllerInt!=0){
+          _tabController.index = this._tabSunControllerInt;
+          this._tabSunControllerInt = 0;
+        }
+
         _tabController.addListener(() {
           //Tab发生变化，Page=1
+          _dataLoading = "数据加载中";
           this._sunPage = 1;
           //当Tab发生变化，优惠券数组重置
           this._sonProductsList = [];
           //打印选中项索引值
+
           var index = _tabController.index;
           if (mounted) {
             setState(() {
               this._sunTabIndex = index;
               _sunSonCatid = _sonCategoryData[index]["id"]; //子栏目ID
+
             });
           }
           //print("第 ${_sunIndex} 个选项");
@@ -191,6 +213,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
       }else{
         if (mounted) {
           setState(() {
+            _dataLoading = "没有数据";
             isLoading = false;
           });
         }
@@ -381,7 +404,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
               }else{
                 return Container(
                   child: Center(
-                    child: Text("数据加载中"),
+                    child: Text("${_dataLoading}"),
                   ),
                 );
               }
@@ -394,7 +417,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
           title: Text("${_sunName}"),
         ),
           body: Center(
-            child: Text("数据加载中"),
+            child: Text("${_dataLoading}"),
           )
       );
     }

@@ -28,7 +28,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   List names = new List();
   final dio = new Dio();
   List _couponCate = [];
-  int _tabindex = 0;
+  int _tabindex = 6;
   var _sunTabColors;
   List _secondaryCouponCate = []; //二级分类
   List _sonCate = [];
@@ -41,8 +41,13 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
     this._sunUserID = intValue;
     this.sunLoginStatus = true;
     //intValue = 0;
+    // ignore: unrelated_type_equality_checks
     if (intValue != "" && intValue != null) {
       this._sunUserID = intValue;
+      _sunSecondaryColumn(catid: 6);  //初始化热门推荐
+    } else {
+      //命名路由跳转到某个页面
+      Navigator.pushNamed(context, '/sunLogin');
     }
   }
 
@@ -66,6 +71,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   @override
   void initState() {
     initFromCache();
+
     this._getMoreData();
     this._sunDioPostCateData(); //所有分类
     super.initState();
@@ -104,6 +110,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
         .post("http://192.168.9.45:8083/tbcouponseconday/secla",
             // ignore: missing_return
             data: sunJsonData)
+        // ignore: missing_return
         .then((value) {
       if (value.data['code'] == 200) {
         //print("数据:${sunResponse.data['data']}");
@@ -148,7 +155,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
           return new ListTile(
             title: Text((names[index]['tags'])),
             onTap: () {
-              print(names[index]);
+              //print(names[index]);
             },
           );
         }
@@ -308,11 +315,14 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
               flex: 4,
               child: SingleChildScrollView(
                   child: Container(
+                    width: double.maxFinite, //如果要填充高度， 写 height: double.maxFinite
+                    height: double.maxFinite,
                 color: Colors.white,
                 child: Column(
                   children: [
                     //Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
                     Container(
+
                       //height: 800.0,
                       color: Colors.white,
                       width: double.infinity,
@@ -335,12 +345,26 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                       width: MediaQuery.of(context)
                                           .size
                                           .width, //宽度占满屏幕
-                                      child: Text("${value["name"]}",
-                                          style: TextStyle(
-                                            //color: Colors.white,
-                                            fontSize: 16,
-                                            //fontWeight: FontWeight.bold,
-                                          )),
+                                      child: InkWell(
+                                        child: Text("${value["name"]}",
+                                            style: TextStyle(
+                                              //color: Colors.white,
+                                              fontSize: 16,
+                                              //fontWeight: FontWeight.bold,
+                                            )),
+                                        onTap: () {
+                                          if (value["name"] != "热门推荐") {
+                                            //命名路由传值跳转到栏目列表页
+                                            Navigator.pushNamed(
+                                                context, '/suncatlist',
+                                                arguments: {
+                                                  "catid": value["id"],
+                                                  "name": value["name"],
+                                                  "_tabSunControllerInt": 0
+                                                });
+                                          }
+                                        },
+                                      ),
                                       padding:
                                           EdgeInsets.fromLTRB(25, 0, 0, 20),
                                     ),
@@ -349,6 +373,12 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                       //runSpacing: 10, //交叉轴上子控件之间的间距
                                       children: _sonCate.length > 0
                                           ? _sonCate.map((e) {
+                                              var index =
+                                                  _sonCate.indexOf(e) + 1;
+                                              if (value["name"] == "热门推荐") {
+                                                index = 0;
+                                              }
+                                              //print(index);
                                               // if(e["cat_image"]!=null){
                                               //   _catimg = e["cat_image"];
                                               // }else{
@@ -368,23 +398,61 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                                 // ),
                                                 child: Column(
                                                   children: [
-                                                    Image.network(
-                                                      "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
-                                                      height: 90.0,
-                                                      fit: BoxFit.cover,
+                                                    InkWell(
+                                                      child: Image.network(
+                                                        "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
+                                                        height: 90.0,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                      onTap: () {
+                                                        // print(
+                                                        //     "栏目ID:${e['pid']}");
+
+                                                        //命名路由传值跳转到栏目列表页
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/suncatlist',
+                                                            arguments: {
+                                                              "catid": e["pid"],
+                                                              "name":
+                                                                  value["name"],
+                                                              "soncatid":
+                                                                  e["id"],
+                                                              "_tabSunControllerInt":
+                                                                  index
+                                                            });
+                                                      },
                                                     ),
                                                     Padding(
                                                         padding:
                                                             EdgeInsets.fromLTRB(
                                                                 0, 10, 0, 0)),
-                                                    Text(
-                                                      "${e["name"]}",
-                                                      style: TextStyle(
-                                                        //color: Colors.white,
-                                                        fontSize: 14,
-                                                        //fontWeight: FontWeight.bold,
+                                                    InkWell(
+                                                      child: Text(
+                                                        "${e["name"]}",
+                                                        style: TextStyle(
+                                                          //color: Colors.white,
+                                                          fontSize: 14,
+                                                          //fontWeight: FontWeight.bold,
+                                                        ),
                                                       ),
+                                                      onTap: () {
+                                                        //命名路由传值跳转到栏目列表页
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/suncatlist',
+                                                            arguments: {
+                                                              "catid": e["pid"],
+                                                              "name":
+                                                                  value["name"],
+                                                              "soncatid":
+                                                                  e["id"],
+                                                              "_tabSunControllerInt":
+                                                                  index
+                                                            });
+                                                      },
                                                     ),
+
                                                     //Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 5)),
                                                   ],
                                                 ),
@@ -400,9 +468,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                   width: MediaQuery.of(context)
                                       .size
                                       .width, //宽度占满屏幕
-                                  height: MediaQuery.of(context)
-                                      .size
-                                      .width,
+                                  height: MediaQuery.of(context).size.width,
                                   color: Colors.white,
                                   child: Center(
                                     child: Text("没有数据"),

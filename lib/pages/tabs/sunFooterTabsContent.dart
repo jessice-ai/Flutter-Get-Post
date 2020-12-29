@@ -77,9 +77,9 @@ class _sunFooterTabsContentState extends State{
             title:Text("发布"),
           ),
           BottomNavigationBarItem(
-          icon: Icon(Icons.account_circle_outlined),
+          icon: Icon(Icons.favorite,),
           // ignore: deprecated_member_use
-            title:Text("消息"),
+            title:Text("收藏"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_outlined),

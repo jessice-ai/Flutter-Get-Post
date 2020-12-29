@@ -33,25 +33,35 @@ class sunProductDetailsPageSon extends State {
   List _sunContentData = [];
   bool sunLoginStatus = false;
   List _sunSmallImage = [];
-
+  int _sunFavoritesStatus = 0;
   //获取用户登陆数据
   initFromCache() async {
     SharedPreferences prefs = await _sunPrefs;
     int intValue = prefs.getInt("sunId"); //获取用户登陆ID
-    return intValue;
+    // ignore: unrelated_type_equality_checks
+    if (intValue != "" && intValue != null) {
+      return intValue;
+    }else{
+      //用户登陆
+      //命名路由跳转到某个页面
+      Navigator.pushNamed(context, '/sunLogin');
+    }
   }
 
   @override
   void initState() {
     super.initState();
+
     //验证用户登陆状态
     initFromCache().then((result) {
       this._sunUserID = result;
       //print("用户ID:${result}");
       _contentId = this.arguments["contentId"];
       _sunGetGoodsDetail(contentID: _contentId).then((result) {
+        //print(result);
         setState(() {
           this._sunContentData = result;
+          _sunFavoritesStatus = result[0]['collectionsStatus']; //更新收藏状态
         });
       });
     });
@@ -83,7 +93,7 @@ class sunProductDetailsPageSon extends State {
         "http://192.168.9.45:8083/tbcouponseconday/getUsertb",
         // ignore: missing_return
         data: sunJsonData).then((value) async {
-
+          //print("打印${value.data}");
           if(value.data["code"]==300) {
             //没有授权过
             await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
@@ -141,16 +151,19 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/content",
+        "http://192.168.9.45:8083/tbcouponseconday/Cobaby",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
-      return sunResponse.data['data'];
-      //print("${this._secondaryCouponCate}");
-    } else {
-      return [];
-      //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
+      setState(() {
+        _sunFavoritesStatus = 1;
+      });
+    }else if(sunResponse.data['code'] == 300){
+      setState(() {
+        _sunFavoritesStatus = 0;
+      });
     }
+    _sunToast("${sunResponse.data['message']}");
   }
 
   @override
@@ -160,7 +173,7 @@ class sunProductDetailsPageSon extends State {
     if (this._sunContentData.length > 0) {
       String small_images = this._sunContentData[0]['small_images'];
       _sunSmallImage = json.decode(small_images);
-      print("${this._sunContentData[0]}");
+      //print("${this._sunContentData[0]}");
       //print("${this._sunSmallImage.length} 张图片");
       return Scaffold(
         appBar: AppBar(
@@ -377,16 +390,21 @@ class sunProductDetailsPageSon extends State {
                               children: [
                                 Padding(
                                     padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
-                                Icon(
-                                  Icons.favorite_border,
+                                _sunFavoritesStatus==1?Icon(
+                                  Icons.favorite, //实心
+                                  //Icons.favorite_border 空心 Icons.favorite 实心
+                                  color: Colors.red,
+                                ):Icon(
+                                  Icons.favorite_border, //空心
                                   //Icons.favorite_border 空心 Icons.favorite 实心
                                   color: Colors.black,
-                                ),
+                                )
+                                ,
                                 Text("收藏", style: TextStyle(fontSize: 12.0))
                               ],
                             ),
                             onTap: () {
-                              _sunFavorites(goodsid: _sunContentData[0]["id"]);
+                              _sunFavoritesGoods(contentID: _sunContentData[0]["id"]);
                             },
                           ),
                         ),
