@@ -63,7 +63,7 @@ class sunDataSearch extends SearchDelegate<String> {
 //优惠券结构
   Widget _getData(context, index) {
     //var tabIndex = this._sunTabIndex;
-    //print("Jessice:A ${tabIndex}");
+    //print("Jessice:A ${_sunGoodsList}");
     if (_sunGoodsList.isNotEmpty) {
       return Container(
         alignment: Alignment.center,
@@ -74,7 +74,7 @@ class sunDataSearch extends SearchDelegate<String> {
 
           children: <Widget>[
             Image.network(
-              _sunGoodsList[index]["small_images"],
+              _sunGoodsList[index]["pict_url"],
               fit: BoxFit.cover,
             ),
             //设置一个空白的高度，方式1
@@ -227,6 +227,7 @@ class sunDataSearch extends SearchDelegate<String> {
         print("优惠券数组增加，现在有:${_sunGoodsList.length} 条数据");
       }
     } else {
+      _sunSearchPage--;
       //_sunToast("暂时没有数据!");
       this.isLoading = false;
     }

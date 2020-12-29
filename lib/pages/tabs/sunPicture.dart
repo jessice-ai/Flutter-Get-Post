@@ -139,7 +139,7 @@ class sunPictureSon extends State{
         _sunToast("没有了");
         if (mounted) {
           setState(() {
-            _sunPage = 1;
+            _sunPage--;
             _dataLoading = "没有数据";
             isLoading = false;
           });

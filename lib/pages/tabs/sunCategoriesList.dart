@@ -69,6 +69,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
      * 侦听滚动事件
      */
     _scrollController.addListener(() {
+
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         this._sunPage++;
@@ -111,10 +112,12 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
         // ignore: missing_return
         .then((value) {
       if (value.data['code'] == 200) {
+        if(mounted){
+          setState(() {
+            _sonCategoryData = value.data['data'];
+          });
+        }
 
-        setState(() {
-          _sonCategoryData = value.data['data'];
-        });
 
         // print("${_sonCategoryData.length}条");
         _tabController =

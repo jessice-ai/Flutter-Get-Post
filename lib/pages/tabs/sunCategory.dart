@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_app/pages/tabs/sunDataSearch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,18 +54,22 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
 
   void _getMoreData() async {
     if (!isLoading) {
-      setState(() {
-        isLoading = true;
-      });
+      if(mounted){
+        setState(() {
+          isLoading = true;
+        });
+      }
+
 
       final response = await dio.get(nextPage);
 
       //nextPage = response.data['totalHits'];
-
-      setState(() {
-        isLoading = false;
-        names.addAll(response.data['hits']);
-      });
+      if(mounted){
+        setState(() {
+          isLoading = false;
+          names.addAll(response.data['hits']);
+        });
+      }
     }
   }
 
@@ -302,9 +307,12 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                       onTap: () {
                         //print("${value['id']}");
                         _sunSecondaryColumn(catid: value['id']);
-                        setState(() {
-                          _tabindex = value['id'];
-                        });
+                        if(mounted){
+                          setState(() {
+                            _tabindex = value['id'];
+                          });
+                        }
+
                       },
                     );
                   }).toList(),
