@@ -1,16 +1,18 @@
+
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_alibc/alibc_const_key.dart';
 import 'package:flutter_alibc/flutter_alibc.dart';
+
 
 class sunProductDetailsPage extends StatefulWidget {
   final arguments;
@@ -75,7 +77,7 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/content",
+        "http://39.98.92.36/tbcouponseconday/content",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
@@ -86,42 +88,60 @@ class sunProductDetailsPageSon extends State {
       //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
     }
   }
-  _sunGetUserTaobaoauth() async{
+
+  _sunGetUserTaobaoauth({itemid}) async{
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/getUsertb",
+        "http://39.98.92.36/tbcouponseconday/getUsertb",
         // ignore: missing_return
         data: sunJsonData).then((value) async {
-          //print("打印${value.data}");
+          print("打印${value.data}");
           if(value.data["code"]==300) {
             //没有授权过
+            FlutterAlibc.loginOut();
             await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
-              var result = await FlutterAlibc.loginTaoBao();
-              // print(
-              //     "登录淘宝  ${result.data.nick} ${result.data.topAccessToken}");
-              _sunGetUserTaobaoauthPost(
-                  result.data.nick, result.data.topAccessToken);
+              await FlutterAlibc.loginTaoBao().then((value) async{
+                Navigator.pushNamed(context, '/sunTb');
+              });
             });
-
-            // print("ddddddd-------${value}");
           }else if(value.data["code"]==400){
+            //print("用户未登录");
             //用户未登录
             _sunToast("请先登陆!");
           }else if(value.data["code"]==200){
-            //print(this._sunContentData[0]['url']);
-            //有授权过
-            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+
+            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((dee) async {
               //print(this._sunContentData[0]['url']);
+              //APP内部打开网页
+              Map _sunTrackParam = {
+                "relationId":value.data["data"]
+              };
+              //链接客户的渠道关系ID
               var result = await FlutterAlibc.openByUrl(
-                  url:this._sunContentData[0]['coupon_share_url'],
+                  url:this._sunContentData[0]['coupon_share_url']+"&relationId=${value.data["data"]}",
                   //backUrl: "tbopen27822502:https://h5.m.taobao.com",
                   openType : AlibcOpenType.AlibcOpenTypeAuto,
                   isNeedCustomNativeFailMode: true,
-                  nativeFailMode:
-                  AlibcNativeFailMode.AlibcNativeFailModeJumpH5);
-            });
+                  nativeFailMode :    AlibcNativeFailMode.AlibcNativeFailModeNone,
+                  schemeType : AlibcSchemeType.AlibcSchemeTaoBao,
+                  //backUrl:"",
+              );
+              //唤起淘宝APP客户端
 
+              // print(_sunTrackParam);
+              // var result = await FlutterAlibc.openItemDetail(
+              //   itemID:itemid,	//必须参数
+              //   openType : AlibcOpenType.AlibcOpenTypeAuto,
+              //   isNeedCustomNativeFailMode : false,
+              //   nativeFailMode :    AlibcNativeFailMode.AlibcNativeFailModeNone,
+              //   schemeType : AlibcSchemeType.AlibcSchemeTaoBao,
+              //   //taokeParams : {},
+              //   trackParam : _sunTrackParam, //需要额外追踪的业务数据
+              //   backUrl:"",
+              // );
+              // print(result);
+            });
             //print(result);
           }else{
             //其他错误
@@ -131,12 +151,14 @@ class sunProductDetailsPageSon extends State {
   }
   _sunGetUserTaobaoauthPost(String nick,String topAccessToken) async {
     Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
+    print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/getItb",
+        "http://39.98.92.36/tbcouponseconday/getItb",
         // ignore: missing_return
         data: sunJsonData).then((value){
           if(value.data["code"]==200){
+            print("${value.data["data"]}");
             _sunToast("授权成功!");
           }else{
             _sunToast("授权失败!");
@@ -151,7 +173,7 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/Cobaby",
+        "http://39.98.92.36/tbcouponseconday/Cobaby",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
@@ -175,6 +197,7 @@ class sunProductDetailsPageSon extends State {
       _sunSmallImage = json.decode(small_images);
       //print("${this._sunContentData[0]}");
       //print("${this._sunSmallImage.length} 张图片");
+      var _sunCoPrice = _sunContentData[0]["zk_final_price"]-_sunContentData[0]["coupon_amount"];
       return Scaffold(
         appBar: AppBar(
           leading: new IconButton(
@@ -240,7 +263,7 @@ class sunProductDetailsPageSon extends State {
                                         padding:
                                             EdgeInsets.fromLTRB(1, 0, 0, 0)),
                                     Text(
-                                        "${this._sunContentData[0]["zk_final_price"]}",
+                                        "${_sunCoPrice}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             //加粗
@@ -309,6 +332,7 @@ class sunProductDetailsPageSon extends State {
                           softWrap: true,
                         ),
                       ),
+
                       //商品详情
                       Container(
                           child: this._sunSmallImage.length > 0
@@ -322,7 +346,8 @@ class sunProductDetailsPageSon extends State {
                               : Text("加载中")),
                       //底部定位
                     ],
-                  )
+                  ),
+
                 ],
               ),
             ),
@@ -478,7 +503,7 @@ class sunProductDetailsPageSon extends State {
                               ),
                             ),
                             onTap: () async {
-                              _sunGetUserTaobaoauth();
+                              _sunGetUserTaobaoauth(itemid: _sunContentData[0]["item_id"]);
                               // print("自购赚");
 
                             },

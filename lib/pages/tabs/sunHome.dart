@@ -66,7 +66,7 @@ class sunHomeContentState extends State
   bool isReflash = false;
   int _sunUserID;
   bool sunLoginStatus = false;
-  String _dataLoading = "数据加载中";
+  String _dataLoading = "Loading...";
 
   //dispose生命周期函数
   //dispose 当组件销毁时，触发的生命周期函数
@@ -121,14 +121,14 @@ class sunHomeContentState extends State
         };
         print("POST值: ${sunJsonData}");
         sunResponse = await sunDio.post(
-            "http://192.168.9.45:8083/tbcouponapi/index",
+            "http://39.98.92.36/tbcouponapi/index",
             data: sunJsonData);
         // if(catid!=0){
         //    sunResponse =
-        //   await sunDio.post("http://192.168.9.45:8083/tbcouponapi/index",data: sunJsonData);
+        //   await sunDio.post("http://39.98.92.36/tbcouponapi/index",data: sunJsonData);
         // }else{
         //    sunResponse =
-        //   await sunDio.post("http://192.168.9.45:8083/tbcouponapi/index");
+        //   await sunDio.post("http://39.98.92.36/tbcouponapi/index");
         // }
         //print("返回数据:${sunResponse}");
         //print("${isReflash}");
@@ -195,7 +195,7 @@ class sunHomeContentState extends State
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-    await sunDio.post("http://192.168.9.45:8083/tbcouponapi/cat");
+    await sunDio.post("http://39.98.92.36/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       if (mounted) {
         setState(() {
@@ -205,7 +205,7 @@ class sunHomeContentState extends State
 
       _tabController = TabController(length: _couponCate.length, vsync: this);
       _tabController.addListener(() {
-        _dataLoading = "数据加载中";
+        _dataLoading = "Loading...";
         //Tab发生变化，Page=1
         this._sunPage = 1;
         //当Tab发生变化，优惠券数组重置
@@ -238,7 +238,7 @@ class sunHomeContentState extends State
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/cat",
+        "http://39.98.92.36/tbcouponseconday/cat",
         data: sunJsonData);
     if (sunResponse.data['code'] == 200) {
       //print("数据:${sunResponse.data['data']}");
@@ -263,7 +263,7 @@ class sunHomeContentState extends State
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/getUsertb",
+        "http://39.98.92.36/tbcouponseconday/getUsertb",
         // ignore: missing_return
         data: sunJsonData).then((value) async {
       //print("打印${value.data}");
@@ -306,7 +306,7 @@ class sunHomeContentState extends State
     Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://192.168.9.45:8083/tbcouponseconday/getItb",
+        "http://39.98.92.36/tbcouponseconday/getItb",
         // ignore: missing_return
         data: sunJsonData).then((value){
       if(value.data["code"]==200){
@@ -327,8 +327,8 @@ class sunHomeContentState extends State
     } else {
       if (_couponData.isNotEmpty) {
         //print(_couponData[index]["zk_final_price"]);
-
-        var price = _couponData[index]["zk_final_price"].toString();
+       var _sunCoPrice = _couponData[index]["zk_final_price"]-_couponData[index]["coupon_amount"];
+        var price = _sunCoPrice.toString();
         //print(price);
         String xaint;
         String xbint;

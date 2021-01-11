@@ -26,13 +26,14 @@ class BodydSon extends State{
   String _sunName;
   String _sunPassword;
   String _sunRePassword;
+  String _sunReferralcode;
   //向服务器端提交数据
   _sunPostData() async{
     // print("${_sunName}");
     // print("${_sunPassword}");
-    var ApiUrl = "http://192.168.9.45:8083/User/reg";
+    var ApiUrl = "http://39.98.92.36/User/reg";
     //{"name":"黄磊","age":23}这个是Map类型数据
-    var result = await http.post(ApiUrl,body: {"email":"${_sunName}","password":"${_sunPassword}"});
+    var result = await http.post(ApiUrl,body: {"email":"${_sunName}","password":"${_sunPassword}","referralcode":"${_sunReferralcode}"});
     if(result.statusCode == 200){
       Map sunData = json.decode(result.body);  //把返回的json字符串类型数据，转化为Map类型
       _sunToast(sunData['message']);  //注册成功提示
@@ -90,13 +91,21 @@ class BodydSon extends State{
                 });
               },
             ),
+            RoundedInputField(
+              hintText: "推荐码",
+              onChanged: (value) {
+                setState(() {
+                  _sunReferralcode = value;
+                });
+              },
+            ),
             RoundedButton(
               text: "注册",
               press: () {
                 //print("${_sunName}");  //账号
                 //print("${_sunPassword}"); //密码
-                if(_sunName==null || _sunName=="" || _sunPassword == null || _sunPassword == ""){
-                  _sunToast("邮箱 / 密码不可空！");
+                if(_sunName==null || _sunName=="" || _sunPassword == null || _sunPassword == "" || _sunReferralcode==null || _sunReferralcode==""){
+                  _sunToast("邮箱 / 密码 / 推荐码 / 不可空！");
                   return false;
                 }
                 if(_sunRePassword!=_sunPassword){
@@ -108,6 +117,7 @@ class BodydSon extends State{
                   _sunToast("邮箱格式不正确！");
                   return false;
                 }
+
 
                 //数据发送给服务器
                 _sunPostData();

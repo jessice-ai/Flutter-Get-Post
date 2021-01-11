@@ -19,8 +19,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   Future<SharedPreferences> _sunPrefs = SharedPreferences.getInstance();
   bool sunLoginStatus = false;
 
-  String nextPage =
-      "https://pixabay.com/api/?key=17946669-543fe6c4c313739ab33b63515&q=yellow+flowers&image_type=photo&pretty=true";
+  //String nextPage = "https://pixabay.com/api/?key=17946669-543fe6c4c313739ab33b63515&q=yellow+flowers&image_type=photo&pretty=true";
 
   ScrollController _scrollController = new ScrollController();
   var _catimg = "";
@@ -34,6 +33,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   List _secondaryCouponCate = []; //二级分类
   List _sonCate = [];
   TabController _tabController;
+  String _sunLoadingData = "Loading...";
 
   //获取用户登陆数据
   void initFromCache() async {
@@ -52,38 +52,38 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
     }
   }
 
-  void _getMoreData() async {
-    if (!isLoading) {
-      if(mounted){
-        setState(() {
-          isLoading = true;
-        });
-      }
-
-
-      final response = await dio.get(nextPage);
-
-      //nextPage = response.data['totalHits'];
-      if(mounted){
-        setState(() {
-          isLoading = false;
-          names.addAll(response.data['hits']);
-        });
-      }
-    }
-  }
+  // void _getMoreData() async {
+  //   if (!isLoading) {
+  //     if(mounted){
+  //       setState(() {
+  //         isLoading = true;
+  //       });
+  //     }
+  //
+  //
+  //     final response = await dio.get(nextPage);
+  //
+  //     //nextPage = response.data['totalHits'];
+  //     if(mounted){
+  //       setState(() {
+  //         isLoading = false;
+  //         names.addAll(response.data['hits']);
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   void initState() {
     initFromCache();
 
-    this._getMoreData();
+    //this._getMoreData();
     this._sunDioPostCateData(); //所有分类
     super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _getMoreData();
+        //_getMoreData();
       }
     });
   }
@@ -112,7 +112,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://192.168.9.45:8083/tbcouponseconday/secla",
+        .post("http://39.98.92.36/tbcouponseconday/secla",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -184,7 +184,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-        await sunDio.post("http://192.168.9.45:8083/tbcouponapi/cat");
+        await sunDio.post("http://39.98.92.36/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       //print(sunResponse.data['data']);
       if (mounted) {
@@ -479,7 +479,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                   height: MediaQuery.of(context).size.width,
                                   color: Colors.white,
                                   child: Center(
-                                    child: Text("没有数据"),
+                                    child: Text("${_sunLoadingData}"),
                                   ),
                                 )
                               ],

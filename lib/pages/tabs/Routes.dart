@@ -1,4 +1,7 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_app/pages/tabs/sunAutoTb.dart';
+import 'package:flutter_app/pages/tabs/sunTeam.dart';
 import 'sunGoodsList.dart';
 import 'sunCategory.dart';
 import 'sunMy.dart';
@@ -38,6 +41,9 @@ final routes = {
   "/sunLogin":(context)=>WelcomeScreen(),
   "/sunproductcontent":(context,{arguments})=>sunProductDetailsPage(arguments:arguments),
   "/suncatlist":(context,{arguments})=>sunCategoriesList(arguments:arguments),
+  "/sunTeam":(context)=>sunTeam(),
+  "/sunTb":(context)=>sunAutoTb()
+
 };
 
 // onGenerateRoute 命名路由传递参数，一下代码是固定写法，直接拷贝即可

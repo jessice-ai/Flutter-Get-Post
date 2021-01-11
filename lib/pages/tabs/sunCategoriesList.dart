@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_alibc/alibc_const_key.dart';
 import 'package:flutter_app/pages/tabs/sunDataSearch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_alibc/flutter_alibc.dart';
 
 class sunCategoriesList extends StatefulWidget {
   final arguments;
@@ -33,7 +35,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
   List _sonProductsList = [];
   TabController _tabController;
   int _sunIndex=0;
-  String _dataLoading = "数据加载中";
+  String _dataLoading = "Loading...";
   bool sunLoginStatus = false;
 
   _sunToast(String message) {
@@ -106,7 +108,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://192.168.9.45:8083/tbcouponseconday/getcategory",
+        .post("http://39.98.92.36/tbcouponseconday/getcategory",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -132,7 +134,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
 
         _tabController.addListener(() {
           //Tab发生变化，Page=1
-          _dataLoading = "数据加载中";
+          _dataLoading = "Loading...";
           this._sunPage = 1;
           //当Tab发生变化，优惠券数组重置
           this._sonProductsList = [];
@@ -157,7 +159,21 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
       }
     });
   }
+  _sunGetUserTaobaoauthPost(String nick,String topAccessToken) async {
+    Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "http://39.98.92.36/tbcouponseconday/getItb",
+        // ignore: missing_return
+        data: sunJsonData).then((value){
+      if(value.data["code"]==200){
+        _sunToast("授权成功!");
+      }else{
+        _sunToast("授权失败!");
+      }
+    });
 
+  }
   /// 获取二级栏目下商品信息
   _sunGetSonGoodsList() async {
     if (mounted) {
@@ -179,7 +195,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://192.168.9.45:8083/tbcouponseconday/getsongoods",
+        .post("http://39.98.92.36/tbcouponseconday/getsongoods",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -238,11 +254,69 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
     });
   }
   var _sunTabIndex = 0;
+  _sunGetUserTaobaoauth({prourl}) async{
+    Map sunJsonData = {"uid": _sunUserID};
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "http://39.98.92.36/tbcouponseconday/getUsertb",
+        // ignore: missing_return
+        data: sunJsonData).then((value) async {
+      //print("打印${value.data}");
+      if(value.data["code"]==300) {
+        //没有授权过
+        await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+          var result = await FlutterAlibc.loginTaoBao();
+          // print(
+          //     "登录淘宝  ${result.data.nick} ${result.data.topAccessToken}");
+          _sunGetUserTaobaoauthPost(
+              result.data.nick, result.data.topAccessToken);
+        });
+
+        // print("ddddddd-------${value}");
+      }else if(value.data["code"]==400){
+        //用户未登录
+        _sunToast("请先登陆!");
+      }else if(value.data["code"]==200){
+        //print(this._sunContentData[0]['url']);
+        //有授权过
+        await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+          //print(this._sunContentData[0]['url']);
+          var result = await FlutterAlibc.openByUrl(
+              url:prourl,
+              //backUrl: "tbopen27822502:https://h5.m.taobao.com",
+              openType : AlibcOpenType.AlibcOpenTypeAuto,
+              isNeedCustomNativeFailMode: true,
+              nativeFailMode:
+              AlibcNativeFailMode.AlibcNativeFailModeJumpH5);
+        });
+
+        //print(result);
+      }else{
+        //其他错误
+      }
+    });
+
+  }
   //优惠券结构
   Widget _getData(context, index) {
     var tabIndex = this._sunTabIndex;
     //print("Jessice:A ${tabIndex}");
       if (_sonProductsList.isNotEmpty) {
+        var _sunCoPrice = _sonProductsList[index]["zk_final_price"]-_sonProductsList[index]["coupon_amount"];
+        var price = _sunCoPrice.toString();
+        //print(price);
+        String xaint;
+        String xbint;
+        List xaintarr = price.split('.');
+        if (xaintarr.length > 1) {
+          //print("有小数点:${xaintarr}");
+          xaint = xaintarr[0];
+          xbint = xaintarr[1];
+        } else {
+          //print("没有小数点:${xaintarr}");
+          xaint = xaintarr[0];
+          xbint = "0";
+        }
         return Container(
           alignment: Alignment.center,
           //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
@@ -285,6 +359,188 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                   letterSpacing: 1, //字母间隙
                 ),
               ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+              Container(
+                width: 50.0,
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: Colors.red, width: 1)),
+                child: Text("券${_sonProductsList[index]["coupon_amount"]}元"
+                    , style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.red,
+                      //letterSpacing: 1, //字母间隙
+                    )
+                ),
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
+              Row(
+                children: [
+                  Text(
+                    "券后 ￥ ",
+                    maxLines: 2,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.red,
+                      fontFamily: 'DMSans',
+                      //letterSpacing: 1, //字母间隙
+                    ),
+                  ),
+                  xaint != "0" ? Text(
+                    "${xaint}",
+                    maxLines: 2,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.red,
+                        fontFamily: 'DMSans',
+                        fontWeight: FontWeight.bold
+                      //letterSpacing: 1, //字母间隙
+                    ),
+                  ) : Center(),
+                  xbint != "0" ? Column(
+                    children: [
+                      Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+                      Text(
+                        ".${xbint}",
+                        maxLines: 2,
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.red,
+                            fontFamily: 'DMSans',
+                            fontWeight: FontWeight.bold
+                          //letterSpacing: 1, //字母间隙
+                        ),
+                      )
+                    ],
+                  ) : Center(),
+                  Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0)),
+                  Text(
+                    " ￥",
+                    maxLines: 2,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'DMSans',
+                      color: Colors.grey,
+                      //letterSpacing: 1, //字母间隙
+                    ),
+                  ),
+
+
+                  Text(
+                    " ${_sonProductsList[index]["reserve_price"]}",
+                    maxLines: 2,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'DMSans',
+                      decoration: TextDecoration.lineThrough, //删除线
+                      color: Colors.grey,
+                      //letterSpacing: 1, //字母间隙
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 20)),
+                ],
+              ),
+              Text(
+                "已售${_sonProductsList[index]["volume"]}件",
+                maxLines: 2,
+                textAlign: TextAlign.left,
+                overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'DMSans',
+                  color: Colors.grey,
+                  //letterSpacing: 1, //字母间隙
+                ),
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 5)),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child:InkWell(
+                      child: Container(
+                        height: 24.0,
+                        decoration: BoxDecoration(
+                          //border: Border.all(color: Colors.red, width: 1),//边框
+                          //border: Border.all(color: Colors.white, width: 1),//边框
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.all(
+                              //圆角
+                              Radius.circular(5.0),
+                            )
+                          //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "分享赚${_sonProductsList[index]["estimated_New"]}元",
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            color: Colors.white,
+                            //letterSpacing: 1, //字母间隙
+                            //fontWeight: FontWeight.bold, //加粗
+                            //fontStyle: FontStyle.italic, //倾斜
+                            //decoration: TextDecoration.lineThrough, //删除线
+                            //decorationColor:Colors.deepOrange,//删除线颜色
+                            //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
+                          ),
+                        ),
+                      ),
+                      onTap: (){
+                        print("分享得");
+                      },
+                    ),
+
+
+                  ),
+                  Padding(padding: EdgeInsets.fromLTRB(0, 10, 5, 10)),
+                  Expanded(
+                    flex: 1,
+                    child:InkWell(
+                      child: Container(
+                        height: 24.0,
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            //border: Border.all(color: Colors.red, width: 1),//边框
+                            //border: Border.all(color: Colors.red, width: 1),//边框
+                            borderRadius: BorderRadius.all(
+                              //圆角
+                              Radius.circular(5.0),
+                            )
+                          //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "自购得${_sonProductsList[index]["estimated_New"]}元",
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            color: Colors.white,
+                            //letterSpacing: 1, //字母间隙
+                            //fontWeight: FontWeight.bold, //加粗
+                            //fontStyle: FontStyle.italic, //倾斜
+                            //decoration: TextDecoration.lineThrough, //删除线
+                            //decorationColor:Colors.deepOrange,//删除线颜色
+                            //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
+                          ),
+                        ),
+                      ),
+                      onTap: () async {
+                        _sunGetUserTaobaoauth(prourl: _sonProductsList[index]["coupon_share_url"]);
+                      },
+                    ),
+                  )
+                ],
+              )
             ],
           ),
           //Container 边框
@@ -383,7 +639,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                                     mainAxisSpacing: 5.0, //上下两个之间距离
                                     crossAxisCount: 2, //列数2
                                     childAspectRatio:
-                                    0.75, //宽度与高度的比例，通过这个比例设置相应高度
+                                    3 / 5.8, //宽度与高度的比例，通过这个比例设置相应高度
                                   ),
                                   itemCount: _sonProductsList.length + 1,
                                   //指定循环的数量
