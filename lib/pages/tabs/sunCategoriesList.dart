@@ -232,6 +232,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
       }else{
         if (mounted) {
           setState(() {
+            _sunPage--;
             _dataLoading = "没有数据";
             isLoading = false;
           });
@@ -303,8 +304,8 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
     //print("Jessice:A ${tabIndex}");
       if (_sonProductsList.isNotEmpty) {
         var _sunCoPrice = _sonProductsList[index]["zk_final_price"]-_sonProductsList[index]["coupon_amount"];
+        _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
         var price = _sunCoPrice.toString();
-        //print(price);
         String xaint;
         String xbint;
         List xaintarr = price.split('.');
@@ -641,9 +642,10 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                                     childAspectRatio:
                                     3 / 5.8, //宽度与高度的比例，通过这个比例设置相应高度
                                   ),
-                                  itemCount: _sonProductsList.length + 1,
+                                  itemCount: _sonProductsList.length+1,
                                   //指定循环的数量
                                   itemBuilder:
+                                      // ignore: missing_return
                                       (BuildContext context, int index) {
                                     //如果循环到最后一个宝贝，显示加载图标
                                     if (index == _sonProductsList.length) {

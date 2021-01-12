@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/tabs/sunAutoTb.dart';
+import 'package:flutter_app/pages/tabs/sunIncomeBreakdown.dart';
 import 'package:flutter_app/pages/tabs/sunTeam.dart';
 import 'sunGoodsList.dart';
 import 'sunCategory.dart';
@@ -42,7 +43,9 @@ final routes = {
   "/sunproductcontent":(context,{arguments})=>sunProductDetailsPage(arguments:arguments),
   "/suncatlist":(context,{arguments})=>sunCategoriesList(arguments:arguments),
   "/sunTeam":(context)=>sunTeam(),
-  "/sunTb":(context)=>sunAutoTb()
+  "/sunTb":(context)=>sunAutoTb(),
+  "/sunBreakdown":(context)=>sunIncomeBreakdown()
+
 
 };
 

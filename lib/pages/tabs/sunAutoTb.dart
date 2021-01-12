@@ -32,7 +32,7 @@ class sunAutoTbSon extends State {
         });
       }
     });
-    FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1");
+    FlutterAlibc.initAlibc(appName: "夜市优惠券",version: "1.0.0+1");
   }
   //获取用户登陆数据
   initFromCache() async {

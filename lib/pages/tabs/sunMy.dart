@@ -146,25 +146,26 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
                   Text("RetroPortal Studio")
                 ],
               )),
-          ListTile(
-            onTap: (){
-              debugPrint("Tapped Profile");
-            },
-            leading: Icon(Icons.person),
-            title: Text(
-              "Your Profile",
-            ),
-          ),
-          Divider(
-            height: 1,
-            color: Colors.grey,
-          ),
+          // ListTile(
+          //   onTap: (){
+          //     debugPrint("Tapped Profile");
+          //   },
+          //   leading: Icon(Icons.person),
+          //   title: Text(
+          //     "Your Profile",
+          //   ),
+          // ),
+          // Divider(
+          //   height: 1,
+          //   color: Colors.grey,
+          // ),
           ListTile(
             onTap: () {
-              debugPrint("Tapped settings");
+              //命名路由跳转到某个页面
+              Navigator.pushNamed(context, '/sunBreakdown');
             },
-            leading: Icon(Icons.settings),
-            title: Text("Settings"),
+            leading: Icon(Icons.list),
+            title: Text("收入明细"),
           ),
           Divider(
             height: 1,
@@ -176,7 +177,7 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
               Navigator.pushNamed(context, '/sunTeam');
               //debugPrint("我的团队");
             },
-            leading: Icon(Icons.settings),
+            leading: Icon(Icons.category),
             title: Text("我的团队"),
           ),
           Divider(
@@ -188,7 +189,7 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
               debugPrint("Tapped Payments");
             },
             leading: Icon(Icons.payment),
-            title: Text("Payments"),
+            title: Text("支付信息"),
           ),
           Divider(
             height: 1,
@@ -196,10 +197,10 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
           ),
           ListTile(
             onTap: () {
-              debugPrint("Tapped Notifications");
+              debugPrint("规则说明");
             },
             leading: Icon(Icons.notifications),
-            title: Text("Notifications"),
+            title: Text("规则说明"),
           ),
           Divider(
             height: 1,

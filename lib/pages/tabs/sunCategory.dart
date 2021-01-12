@@ -128,6 +128,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
       } else {
         if (mounted) {
           setState(() {
+            _sunLoadingData = "暂时没有数据";
             this._secondaryCouponCate = [];
           });
         }
@@ -271,7 +272,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   //下拉刷新Body内部内容，效果一
   @override
   Widget build(BuildContext context) {
-    double maxWidth = MediaQuery.of(context).size.width * 0.7;
+    //double maxWidth = MediaQuery.of(context).size.width * 0.7;
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -321,26 +322,28 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
             ),
             Expanded(
               flex: 4,
-              child: SingleChildScrollView(
-                  child: Container(
-                    width: double.maxFinite, //如果要填充高度， 写 height: double.maxFinite
-                    height: double.maxFinite,
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    //Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-                    Container(
-
-                      //height: 800.0,
-                      color: Colors.white,
-                      width: double.infinity,
-                      //color: Colors.blue,
+              child: Container(
+                height: double.infinity, //添加这行，可填充满高度
+                child: SingleChildScrollView(
+                    child: Container(
+                      width: double.maxFinite, //如果要填充高度， 写 height: double.maxFinite
+                      //height: double.maxFinite,
                       alignment: Alignment.topLeft,
-                      child: Wrap(
-                        spacing: 5, //主轴上子控件的间距
-                        runSpacing: 5, //交叉轴上子控件之间的间距
-                        children: this._secondaryCouponCate.length > 0
-                            ? this._secondaryCouponCate.map((value) {
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          //Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
+                          Container(
+                            //height: 800.0,
+                            color: Colors.white,
+                            width: double.infinity,
+                            //color: Colors.blue,
+                            alignment: Alignment.topLeft,
+                            child: Wrap(
+                              spacing: 5, //主轴上子控件的间距
+                              runSpacing: 5, //交叉轴上子控件之间的间距
+                              children: this._secondaryCouponCate.length > 0
+                                  ? this._secondaryCouponCate.map((value) {
                                 //print(_secondaryCouponCate);
                                 _sonCate = value["son"];
                                 //print(_sonCate);
@@ -348,7 +351,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                   children: [
                                     Padding(
                                         padding:
-                                            EdgeInsets.fromLTRB(10, 0, 0, 20)),
+                                        EdgeInsets.fromLTRB(10, 0, 0, 20)),
                                     Container(
                                       width: MediaQuery.of(context)
                                           .size
@@ -374,120 +377,121 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                         },
                                       ),
                                       padding:
-                                          EdgeInsets.fromLTRB(25, 0, 0, 20),
+                                      EdgeInsets.fromLTRB(25, 0, 0, 20),
                                     ),
                                     Wrap(
                                       spacing: 10, //主轴上子控件的间距
                                       //runSpacing: 10, //交叉轴上子控件之间的间距
                                       children: _sonCate.length > 0
                                           ? _sonCate.map((e) {
-                                              var index =
-                                                  _sonCate.indexOf(e) + 1;
-                                              if (value["name"] == "热门推荐") {
-                                                index = 0;
-                                              }
-                                              //print(index);
-                                              // if(e["cat_image"]!=null){
-                                              //   _catimg = e["cat_image"];
-                                              // }else{
-                                              //   _catimg = "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64";
-                                              // }
-                                              // print("jessice ${_catimg}");
-                                              return Container(
-                                                width: 90.0,
-                                                height: 140,
-                                                alignment: Alignment.center,
-                                                // decoration: BoxDecoration(
-                                                //   gradient: LinearGradient(colors: [
-                                                //     Colors.orangeAccent,
-                                                //     Colors.orange,
-                                                //     Colors.deepOrange
-                                                //   ]),
-                                                // ),
-                                                child: Column(
-                                                  children: [
-                                                    InkWell(
-                                                      child: Image.network(
-                                                        "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
-                                                        height: 90.0,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                      onTap: () {
-                                                        // print(
-                                                        //     "栏目ID:${e['pid']}");
-
-                                                        //命名路由传值跳转到栏目列表页
-                                                        Navigator.pushNamed(
-                                                            context,
-                                                            '/suncatlist',
-                                                            arguments: {
-                                                              "catid": e["pid"],
-                                                              "name":
-                                                                  value["name"],
-                                                              "soncatid":
-                                                                  e["id"],
-                                                              "_tabSunControllerInt":
-                                                                  index
-                                                            });
-                                                      },
-                                                    ),
-                                                    Padding(
-                                                        padding:
-                                                            EdgeInsets.fromLTRB(
-                                                                0, 10, 0, 0)),
-                                                    InkWell(
-                                                      child: Text(
-                                                        "${e["name"]}",
-                                                        style: TextStyle(
-                                                          //color: Colors.white,
-                                                          fontSize: 14,
-                                                          //fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      onTap: () {
-                                                        //命名路由传值跳转到栏目列表页
-                                                        Navigator.pushNamed(
-                                                            context,
-                                                            '/suncatlist',
-                                                            arguments: {
-                                                              "catid": e["pid"],
-                                                              "name":
-                                                                  value["name"],
-                                                              "soncatid":
-                                                                  e["id"],
-                                                              "_tabSunControllerInt":
-                                                                  index
-                                                            });
-                                                      },
-                                                    ),
-
-                                                    //Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 5)),
-                                                  ],
+                                        var index =
+                                            _sonCate.indexOf(e) + 1;
+                                        if (value["name"] == "热门推荐") {
+                                          index = 0;
+                                        }
+                                        //print(index);
+                                        // if(e["cat_image"]!=null){
+                                        //   _catimg = e["cat_image"];
+                                        // }else{
+                                        //   _catimg = "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64";
+                                        // }
+                                        // print("jessice ${_catimg}");
+                                        return Container(
+                                          width: 90.0,
+                                          height: 140,
+                                          alignment: Alignment.center,
+                                          // decoration: BoxDecoration(
+                                          //   gradient: LinearGradient(colors: [
+                                          //     Colors.orangeAccent,
+                                          //     Colors.orange,
+                                          //     Colors.deepOrange
+                                          //   ]),
+                                          // ),
+                                          child: Column(
+                                            children: [
+                                              InkWell(
+                                                child: Image.network(
+                                                  "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
+                                                  height: 90.0,
+                                                  fit: BoxFit.cover,
                                                 ),
-                                              );
-                                            }).toList()
+                                                onTap: () {
+                                                  // print(
+                                                  //     "栏目ID:${e['pid']}");
+
+                                                  //命名路由传值跳转到栏目列表页
+                                                  Navigator.pushNamed(
+                                                      context,
+                                                      '/suncatlist',
+                                                      arguments: {
+                                                        "catid": e["pid"],
+                                                        "name":
+                                                        value["name"],
+                                                        "soncatid":
+                                                        e["id"],
+                                                        "_tabSunControllerInt":
+                                                        index
+                                                      });
+                                                },
+                                              ),
+                                              Padding(
+                                                  padding:
+                                                  EdgeInsets.fromLTRB(
+                                                      0, 10, 0, 0)),
+                                              InkWell(
+                                                child: Text(
+                                                  "${e["name"]}",
+                                                  style: TextStyle(
+                                                    //color: Colors.white,
+                                                    fontSize: 14,
+                                                    //fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                onTap: () {
+                                                  //命名路由传值跳转到栏目列表页
+                                                  Navigator.pushNamed(
+                                                      context,
+                                                      '/suncatlist',
+                                                      arguments: {
+                                                        "catid": e["pid"],
+                                                        "name":
+                                                        value["name"],
+                                                        "soncatid":
+                                                        e["id"],
+                                                        "_tabSunControllerInt":
+                                                        index
+                                                      });
+                                                },
+                                              ),
+
+                                              //Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 5)),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList()
                                           : [], //要显示的子控件集合
                                     )
                                   ],
                                 );
                               }).toList()
-                            : [
+                                  : [
                                 Container(
                                   width: MediaQuery.of(context)
                                       .size
                                       .width, //宽度占满屏幕
-                                  height: MediaQuery.of(context).size.width,
+                                  height: MediaQuery.of(context).size.height,
                                   color: Colors.white,
                                   child: Center(
                                     child: Text("${_sunLoadingData}"),
                                   ),
                                 )
                               ],
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              )),
+                    )),
+              ),
             ),
           ],
         ),

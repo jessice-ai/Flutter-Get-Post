@@ -100,7 +100,7 @@ class sunProductDetailsPageSon extends State {
           if(value.data["code"]==300) {
             //没有授权过
             FlutterAlibc.loginOut();
-            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+            await FlutterAlibc.initAlibc(appName: "夜市优惠券",version: "1.0.0+1").then((value) async {
               await FlutterAlibc.loginTaoBao().then((value) async{
                 Navigator.pushNamed(context, '/sunTb');
               });
@@ -111,7 +111,7 @@ class sunProductDetailsPageSon extends State {
             _sunToast("请先登陆!");
           }else if(value.data["code"]==200){
 
-            await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((dee) async {
+            await FlutterAlibc.initAlibc(appName: "夜市优惠券",version: "1.0.0+1").then((dee) async {
               //print(this._sunContentData[0]['url']);
               //APP内部打开网页
               Map _sunTrackParam = {
