@@ -207,7 +207,7 @@ class sunDataSearch extends SearchDelegate<String> {
     print("POST值: ${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponsearch/index",
+        "http://www.shsun.xyz/tbcouponsearch/index",
         data: sunJsonData);
     if (sunResponse.data['code'] == 200) {
       if (this.isReflash == true) {

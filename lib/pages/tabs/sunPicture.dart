@@ -87,6 +87,7 @@ class sunPictureSon extends State{
       setState(() {
         this.sunLoginStatus == false;
         isLoading = true;
+        this._dataLoading="数据加载中";
       });
     }
     if (isReflash == true) {
@@ -100,7 +101,7 @@ class sunPictureSon extends State{
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://39.98.92.36/tbcouponseconday/CobabyList",
+        .post("http://www.shsun.xyz/tbcouponseconday/CobabyList",
         // ignore: missing_return
         data: sunJsonData)
     // ignore: missing_return
@@ -136,11 +137,11 @@ class sunPictureSon extends State{
         // });
         //print("dddd ${_sonProductsList}");
       }else{
-        _sunToast("没有了");
+        //_sunToast("没有了");
         if (mounted) {
           setState(() {
             _sunPage--;
-            _dataLoading = "没有数据";
+            _dataLoading = "我是有底线的";
             isLoading = false;
           });
         }
@@ -276,21 +277,27 @@ class sunPictureSon extends State{
                             childAspectRatio:
                             0.75, //宽度与高度的比例，通过这个比例设置相应高度
                           ),
-                          itemCount: _sonFavoritesList.length + 1,
+                          itemCount: _sonFavoritesList.length,
                           //指定循环的数量
                           itemBuilder:
                               (BuildContext context, int index) {
                             //如果循环到最后一个宝贝，显示加载图标
-                            if (index == _sonFavoritesList.length) {
-                              return _buildProgressIndicator();
-                            } else {
-                              return this._getData(context, index);
-                            }
+                                return this._getData(context, index);
                           },
                           //controller: _scrollController,
                         ))
                   ],
+                ),//底部加载提示
+                Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10.0, 0, 40.0),
+                    child: Center(
+                      child: Text("${_dataLoading}"),
+                    ),
+                  ),
                 )
+
               ],
             ),
           ),
@@ -299,10 +306,12 @@ class sunPictureSon extends State{
     }else{
       return Scaffold(
           appBar: AppBar(
-            title: Text("收藏"),
+            title: Center(
+              child: Text("收藏"),
+            ),
           ),
           body: Center(
-            child: Text("${_dataLoading}"),
+            child: Text(""),
           )
       );
     }

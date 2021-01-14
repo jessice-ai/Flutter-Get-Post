@@ -112,7 +112,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://39.98.92.36/tbcouponseconday/secla",
+        .post("http://www.shsun.xyz/tbcouponseconday/secla",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -185,7 +185,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-        await sunDio.post("http://39.98.92.36/tbcouponapi/cat");
+        await sunDio.post("http://www.shsun.xyz/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       //print(sunResponse.data['data']);
       if (mounted) {
@@ -199,53 +199,53 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   }
 
 //优惠券结构
-  Widget _getData(context, index) {
-    //var tabIndex = this._sunTabIndex;
-    //print("Jessice:A ${tabIndex}");
-    if (_secondaryCouponCate.isNotEmpty) {
-      return Container(
-        alignment: Alignment.center,
-        //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
-        child: ListView(
-          shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
-          physics: NeverScrollableScrollPhysics(), //禁用滑动事件
-
-          children: <Widget>[
-            Image.network(
-              _secondaryCouponCate[index]["small_images"],
-              fit: BoxFit.cover,
-            ),
-            //设置一个空白的高度，方式1
-            // Container(
-            //   height: 10,
-            // ),
-            //设置一个空白的高度，方式1，建议
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              "标题",
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis, //溢出之后显示三个点
-              style: TextStyle(
-                fontSize: 14,
-                letterSpacing: 1, //字母间隙
-              ),
-            ),
-          ],
-        ),
-        //Container 边框
-        decoration: BoxDecoration(
-            //border: Border.all(color:Colors.black26,width: 1)
-            ),
-      );
-    } else {
-      return Container();
-    }
-
-    //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
-  }
+//   Widget _getData(context, index) {
+//     //var tabIndex = this._sunTabIndex;
+//     //print("Jessice:A ${tabIndex}");
+//     if (_secondaryCouponCate.isNotEmpty) {
+//       return Container(
+//         alignment: Alignment.center,
+//         //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
+//         child: ListView(
+//           shrinkWrap: true, //为true可以解决子控件必须设置高度的问题
+//           physics: NeverScrollableScrollPhysics(), //禁用滑动事件
+//
+//           children: <Widget>[
+//             Image.network(
+//               _secondaryCouponCate[index]["small_images"],
+//               fit: BoxFit.cover,
+//             ),
+//             //设置一个空白的高度，方式1
+//             // Container(
+//             //   height: 10,
+//             // ),
+//             //设置一个空白的高度，方式1，建议
+//             SizedBox(
+//               height: 10,
+//             ),
+//             Text(
+//               "标题",
+//               maxLines: 2,
+//               textAlign: TextAlign.center,
+//               overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+//               style: TextStyle(
+//                 fontSize: 14,
+//                 letterSpacing: 1, //字母间隙
+//               ),
+//             ),
+//           ],
+//         ),
+//         //Container 边框
+//         decoration: BoxDecoration(
+//             //border: Border.all(color:Colors.black26,width: 1)
+//             ),
+//       );
+//     } else {
+//       return Container();
+//     }
+//
+//     //print("${_couponData[tabIndex]["data"][index]["small_images"]}");
+//   }
 
   //按钮背景颜色
   _sunTabColorsfunc({colors}) {
@@ -482,7 +482,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                   height: MediaQuery.of(context).size.height,
                                   color: Colors.white,
                                   child: Center(
-                                    child: Text("${_sunLoadingData}"),
+                                    child: Text(" "),
                                   ),
                                 )
                               ],

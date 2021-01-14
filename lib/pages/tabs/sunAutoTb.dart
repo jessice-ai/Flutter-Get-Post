@@ -71,7 +71,7 @@ class sunAutoTbSon extends State {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: WebView(
-          initialUrl: "https://oauth.taobao.com/authorize?response_type=code&client_id=30174548&redirect_uri=http://39.98.92.36/tb/calback&state=${_sunUserID}&view=wap",///初始化url
+          initialUrl: "https://oauth.taobao.com/authorize?response_type=code&client_id=30174548&redirect_uri=http://www.shsun.xyz/tb/calback&state=${_sunUserID}&view=wap",///初始化url
           javascriptMode: JavascriptMode.unrestricted,///JS执行模式
           onWebViewCreated: (WebViewController webViewController) {///在WebView创建完成后调用，只会被调用一次
             //print("-----------------AAAAAAAAAAAA------------------");
@@ -82,7 +82,7 @@ class sunAutoTbSon extends State {
           ].toSet(),
           navigationDelegate: (NavigationRequest request) {//路由委托（可以通过在此处拦截url实现JS调用Flutter部分）；
             ///通过拦截url来实现js与flutter交互
-            if (request.url.startsWith('http://39.98.92.36/tb/calback')) {
+            if (request.url.startsWith('http://www.shsun.xyz/tb/calback')) {
               //Fluttertoast.showToast(msg:'JS调用了Flutter By navigationDelegate');
               //print('-----------------BBBBBBBBB------------------ $request}');
               Uri u = Uri.parse(request.url);

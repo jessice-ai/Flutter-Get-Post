@@ -77,7 +77,7 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/content",
+        "http://www.shsun.xyz/tbcouponseconday/content",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
@@ -93,7 +93,7 @@ class sunProductDetailsPageSon extends State {
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/getUsertb",
+        "http://www.shsun.xyz/tbcouponseconday/getUsertb",
         // ignore: missing_return
         data: sunJsonData).then((value) async {
           print("打印${value.data}");
@@ -154,7 +154,7 @@ class sunProductDetailsPageSon extends State {
     print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/getItb",
+        "http://www.shsun.xyz/tbcouponseconday/getItb",
         // ignore: missing_return
         data: sunJsonData).then((value){
           if(value.data["code"]==200){
@@ -173,7 +173,7 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/Cobaby",
+        "http://www.shsun.xyz/tbcouponseconday/Cobaby",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {

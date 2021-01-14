@@ -36,10 +36,9 @@ import 'package:flutter_alibc/flutter_alibc.dart';
 //   }
 // }
 
-/**
- * StatelessWidget 无状态组件
- * StatefulWidget 有状态组件，点击页面脚本出发页面数据发生变化
- */
+/// StatelessWidget 无状态组件
+/// StatefulWidget 有状态组件，点击页面脚本出发页面数据发生变化
+
 //说明：使用TabControllers实现顶部tab切换,必须使用动态组件,也就是 StatefulWiget
 class sunHome extends StatefulWidget {
   @override
@@ -66,7 +65,8 @@ class sunHomeContentState extends State
   bool isReflash = false;
   int _sunUserID;
   bool sunLoginStatus = false;
-  String _dataLoading = "Loading...";
+  String _dataLoading = "";
+  var _dataLoadingData = "数据加载中...";
 
   //dispose生命周期函数
   //dispose 当组件销毁时，触发的生命周期函数
@@ -104,6 +104,7 @@ class sunHomeContentState extends State
       if (!isLoading) {
         if (mounted) {
           setState(() {
+            _dataLoadingData = "数据加载中";
             this.sunLoginStatus == false;
             isLoading = true;
           });
@@ -120,21 +121,20 @@ class sunHomeContentState extends State
           "page": _sunPage
         };
         print("POST值: ${sunJsonData}");
-        sunResponse = await sunDio.post(
-            "http://39.98.92.36/tbcouponapi/index",
-            data: sunJsonData);
+        sunResponse = await sunDio
+            .post("http://www.shsun.xyz/tbcouponapi/index", data: sunJsonData);
         // if(catid!=0){
         //    sunResponse =
-        //   await sunDio.post("http://39.98.92.36/tbcouponapi/index",data: sunJsonData);
+        //   await sunDio.post("http://www.shsun.xyz/tbcouponapi/index",data: sunJsonData);
         // }else{
         //    sunResponse =
-        //   await sunDio.post("http://39.98.92.36/tbcouponapi/index");
+        //   await sunDio.post("http://www.shsun.xyz/tbcouponapi/index");
         // }
         //print("返回数据:${sunResponse}");
         //print("${isReflash}");
         if (sunResponse.data['code'] == 200) {
           //print(sunResponse.data['data']);
-          print("isReflash:${isReflash}");
+          //print("isReflash:${isReflash}");
           if (isReflash == true) {
             //下拉刷新重置数组
             if (mounted) {
@@ -151,9 +151,6 @@ class sunHomeContentState extends State
             if (mounted) {
               setState(() {
                 isLoading = false;
-
-                //isReflash == false;
-                //this._couponData = sunResponse.data['data'];
                 this._couponData.addAll(sunResponse.data['data']);
               });
             }
@@ -162,17 +159,12 @@ class sunHomeContentState extends State
         } else {
           if (mounted) {
             setState(() {
+              _sunPage--;
+              _dataLoadingData = "我是有底线的";
               _dataLoading = "没有数据";
               isLoading = false;
             });
           }
-
-          //_sunToast("${sunResponse.data['message']}");
-          //没有数据时清空数组
-          // setState(() {
-          //   this._couponData = [];
-          // });
-
         }
       }
     }
@@ -180,11 +172,11 @@ class sunHomeContentState extends State
   }
 
   Widget _buildProgressIndicator() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-        child: Opacity(
-          opacity: isLoading ? 1.0 : 00,
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(0, 20.0, 0, 20.0),
+        child: Center(
           child: new CircularProgressIndicator(),
         ),
       ),
@@ -195,7 +187,7 @@ class sunHomeContentState extends State
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-    await sunDio.post("http://39.98.92.36/tbcouponapi/cat");
+        await sunDio.post("http://www.shsun.xyz/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       if (mounted) {
         setState(() {
@@ -205,7 +197,7 @@ class sunHomeContentState extends State
 
       _tabController = TabController(length: _couponCate.length, vsync: this);
       _tabController.addListener(() {
-        _dataLoading = "Loading...";
+        _dataLoading = " ";
         //Tab发生变化，Page=1
         this._sunPage = 1;
         //当Tab发生变化，优惠券数组重置
@@ -237,9 +229,8 @@ class sunHomeContentState extends State
     Map sunJsonData = {"catid": catid, "uid": _sunUserID};
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
-    Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/cat",
-        data: sunJsonData);
+    Response sunResponse = await sunDio
+        .post("http://www.shsun.xyz/tbcouponseconday/cat", data: sunJsonData);
     if (sunResponse.data['code'] == 200) {
       //print("数据:${sunResponse.data['data']}");
       if (mounted) {
@@ -259,17 +250,20 @@ class sunHomeContentState extends State
   }
 
   var _sunTabIndex = 0;
-  _sunGetUserTaobaoauth({prourl}) async{
+
+  _sunGetUserTaobaoauth({prourl}) async {
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
-    Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/getUsertb",
-        // ignore: missing_return
-        data: sunJsonData).then((value) async {
+    Response sunResponse = await sunDio
+        .post("http://www.shsun.xyz/tbcouponseconday/getUsertb",
+            // ignore: missing_return
+            data: sunJsonData)
+        .then((value) async {
       //print("打印${value.data}");
-      if(value.data["code"]==300) {
+      if (value.data["code"] == 300) {
         //没有授权过
-        await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+        await FlutterAlibc.initAlibc(appName: "白羽电商导购", version: "1.0.0+1")
+            .then((value) async {
           var result = await FlutterAlibc.loginTaoBao();
           // print(
           //     "登录淘宝  ${result.data.nick} ${result.data.topAccessToken}");
@@ -278,58 +272,64 @@ class sunHomeContentState extends State
         });
 
         // print("ddddddd-------${value}");
-      }else if(value.data["code"]==400){
+      } else if (value.data["code"] == 400) {
         //用户未登录
         _sunToast("请先登陆!");
-      }else if(value.data["code"]==200){
+      } else if (value.data["code"] == 200) {
         //print(this._sunContentData[0]['url']);
         //有授权过
-        await FlutterAlibc.initAlibc(appName: "白羽电商导购",version: "1.0.0+1").then((value) async {
+        await FlutterAlibc.initAlibc(appName: "白羽电商导购", version: "1.0.0+1")
+            .then((value) async {
           //print(this._sunContentData[0]['url']);
           var result = await FlutterAlibc.openByUrl(
-              url:prourl,
+              url: prourl,
               //backUrl: "tbopen27822502:https://h5.m.taobao.com",
-              openType : AlibcOpenType.AlibcOpenTypeAuto,
+              openType: AlibcOpenType.AlibcOpenTypeAuto,
               isNeedCustomNativeFailMode: true,
-              nativeFailMode:
-              AlibcNativeFailMode.AlibcNativeFailModeJumpH5);
+              nativeFailMode: AlibcNativeFailMode.AlibcNativeFailModeJumpH5);
         });
 
         //print(result);
-      }else{
+      } else {
         //其他错误
       }
     });
-
   }
-  _sunGetUserTaobaoauthPost(String nick,String topAccessToken) async {
-    Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
+
+  _sunGetUserTaobaoauthPost(String nick, String topAccessToken) async {
+    Map sunJsonData = {
+      "uid": _sunUserID,
+      "nick": nick,
+      "topAccessToken": topAccessToken
+    };
     var sunDio = Dio();
-    Response sunResponse = await sunDio.post(
-        "http://39.98.92.36/tbcouponseconday/getItb",
-        // ignore: missing_return
-        data: sunJsonData).then((value){
-      if(value.data["code"]==200){
+    Response sunResponse = await sunDio
+        .post("http://www.shsun.xyz/tbcouponseconday/getItb",
+            // ignore: missing_return
+            data: sunJsonData)
+        .then((value) {
+      if (value.data["code"] == 200) {
         _sunToast("授权成功!");
-      }else{
+      } else {
         _sunToast("授权失败!");
       }
     });
-
   }
+
   //优惠券结构
   Widget _getData(context, index) {
     var tabIndex = this._sunTabIndex;
-
 
     if (tabIndex == 0) {
       return Container();
     } else {
       if (_couponData.isNotEmpty) {
         //print(_couponData[index]["zk_final_price"]);
-       var _sunCoPrice = _couponData[index]["zk_final_price"]-_couponData[index]["coupon_amount"];
+        var _sunCoPrice = _couponData[index]["zk_final_price"] -
+            _couponData[index]["coupon_amount"];
+        _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
         var price = _sunCoPrice.toString();
-        //print(price);
+        //print(_sunCoPrice);
         String xaint;
         String xbint;
         List xaintarr = price.split('.');
@@ -342,7 +342,6 @@ class sunHomeContentState extends State
           xaint = xaintarr[0];
           xbint = "0";
         }
-
 
         return Container(
           alignment: Alignment.center,
@@ -389,13 +388,12 @@ class sunHomeContentState extends State
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     border: Border.all(color: Colors.red, width: 1)),
-                child: Text("券${_couponData[index]["coupon_amount"]}元"
-                    , style: TextStyle(
+                child: Text("券${_couponData[index]["coupon_amount"]}元",
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.red,
                       //letterSpacing: 1, //字母间隙
-                    )
-                ),
+                    )),
               ),
               Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
               Row(
@@ -412,37 +410,41 @@ class sunHomeContentState extends State
                       //letterSpacing: 1, //字母间隙
                     ),
                   ),
-                  xaint != "0" ? Text(
-                    "${xaint}",
-                    maxLines: 2,
-                    textAlign: TextAlign.left,
-                    overflow: TextOverflow.ellipsis, //溢出之后显示三个点
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.red,
-                        fontFamily: 'DMSans',
-                        fontWeight: FontWeight.bold
-                      //letterSpacing: 1, //字母间隙
-                    ),
-                  ) : Center(),
-                  xbint != "0" ? Column(
-                    children: [
-                      Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
-                      Text(
-                        ".${xbint}",
-                        maxLines: 2,
-                        textAlign: TextAlign.end,
-                        overflow: TextOverflow.ellipsis, //溢出之后显示三个点
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.red,
-                            fontFamily: 'DMSans',
-                            fontWeight: FontWeight.bold
-                          //letterSpacing: 1, //字母间隙
-                        ),
-                      )
-                    ],
-                  ) : Center(),
+                  xaint != "0"
+                      ? Text(
+                          "${xaint}",
+                          maxLines: 2,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.red,
+                              fontFamily: 'DMSans',
+                              fontWeight: FontWeight.bold
+                              //letterSpacing: 1, //字母间隙
+                              ),
+                        )
+                      : Center(),
+                  xbint != "0"
+                      ? Column(
+                          children: [
+                            Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+                            Text(
+                              ".${xbint}",
+                              maxLines: 2,
+                              textAlign: TextAlign.end,
+                              overflow: TextOverflow.ellipsis, //溢出之后显示三个点
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                  fontFamily: 'DMSans',
+                                  fontWeight: FontWeight.bold
+                                  //letterSpacing: 1, //字母间隙
+                                  ),
+                            )
+                          ],
+                        )
+                      : Center(),
                   Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0)),
                   Text(
                     " ￥",
@@ -456,8 +458,6 @@ class sunHomeContentState extends State
                       //letterSpacing: 1, //字母间隙
                     ),
                   ),
-
-
                   Text(
                     " ${_couponData[index]["reserve_price"]}",
                     maxLines: 2,
@@ -492,19 +492,19 @@ class sunHomeContentState extends State
                 children: [
                   Expanded(
                     flex: 1,
-                    child:InkWell(
+                    child: InkWell(
                       child: Container(
                         height: 24.0,
                         decoration: BoxDecoration(
-                          //border: Border.all(color: Colors.red, width: 1),//边框
-                          //border: Border.all(color: Colors.white, width: 1),//边框
+                            //border: Border.all(color: Colors.red, width: 1),//边框
+                            //border: Border.all(color: Colors.white, width: 1),//边框
                             color: Colors.blue,
                             borderRadius: BorderRadius.all(
                               //圆角
                               Radius.circular(5.0),
                             )
-                          //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
-                        ),
+                            //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
+                            ),
                         alignment: Alignment.center,
                         child: Text(
                           "分享赚${_couponData[index]["estimated_New"]}元",
@@ -520,17 +520,15 @@ class sunHomeContentState extends State
                           ),
                         ),
                       ),
-                      onTap: (){
+                      onTap: () {
                         print("分享得");
                       },
                     ),
-
-
                   ),
                   Padding(padding: EdgeInsets.fromLTRB(0, 10, 5, 10)),
                   Expanded(
                     flex: 1,
-                    child:InkWell(
+                    child: InkWell(
                       child: Container(
                         height: 24.0,
                         decoration: BoxDecoration(
@@ -541,8 +539,8 @@ class sunHomeContentState extends State
                               //圆角
                               Radius.circular(5.0),
                             )
-                          //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
-                        ),
+                            //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
+                            ),
                         alignment: Alignment.center,
                         child: Text(
                           "自购得${_couponData[index]["estimated_New"]}元",
@@ -559,19 +557,19 @@ class sunHomeContentState extends State
                         ),
                       ),
                       onTap: () async {
-                        _sunGetUserTaobaoauth(prourl: _couponData[index]["coupon_share_url"]);
+                        _sunGetUserTaobaoauth(
+                            prourl: _couponData[index]["coupon_share_url"]);
                       },
                     ),
                   )
                 ],
               )
-
             ],
           ),
           //Container 边框
           decoration: BoxDecoration(
-            //border: Border.all(color:Colors.black26,width: 1)
-          ),
+              //border: Border.all(color:Colors.black26,width: 1)
+              ),
         );
       } else {
         return Container();
@@ -627,8 +625,8 @@ class sunHomeContentState extends State
           ),
           //Container 边框
           decoration: BoxDecoration(
-            //border: Border.all(color:Colors.black26,width: 1)
-          ),
+              //border: Border.all(color:Colors.black26,width: 1)
+              ),
         );
       } else {
         return Container();
@@ -650,6 +648,8 @@ class sunHomeContentState extends State
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         this._sunPage++;
+        //print("第 ${_sunPage} 页");
+        //_buildProgressIndicator();
         _sunDioPostData(catid: _couponCateId);
       }
     });
@@ -705,15 +705,15 @@ class sunHomeContentState extends State
           actions: <Widget>[
             new Container(
                 child: RaisedButton.icon(
-                  label: Text("搜索"),
-                  color: Colors.white, //背景颜色
-                  onPressed: () {
-                    showSearch(context: context, delegate: sunDataSearch());
-                  },
-                  icon: Icon(
-                    Icons.search,
-                  ),
-                )),
+              label: Text("搜索"),
+              color: Colors.white, //背景颜色
+              onPressed: () {
+                showSearch(context: context, delegate: sunDataSearch());
+              },
+              icon: Icon(
+                Icons.search,
+              ),
+            )),
           ],
         ),
         body: TabBarView(
@@ -740,117 +740,125 @@ class sunHomeContentState extends State
                               color: Colors.white,
                               child: this._secondaryCouponCate.length > 0
                                   ? GridView.count(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                //指定循环的数量
-                                primary: false,
-                                scrollDirection: Axis.vertical,
-                                crossAxisCount: 5,
-                                childAspectRatio: 4 / 5,
-                                children:
-                                this._secondaryCouponCate.length > 0
-                                    ? this
-                                    ._secondaryCouponCate
-                                    .map((e) {
-                                  return SingleChildScrollView(
-                                    physics:
-                                    NeverScrollableScrollPhysics(),
-                                    //不允许滚动
-                                    child: Container(
-                                      height: 600.0,
-                                      color: Colors.white,
-                                      child: Column(
-                                        children: [
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              InkWell(
-                                                child: Image
-                                                    .network(
-                                                  "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
-                                                  height: 70.0,
-                                                  fit: BoxFit
-                                                      .cover,
-                                                ),
-                                                onTap: () {
-                                                  //命名路由传值跳转到栏目列表页
-                                                  Navigator.pushNamed(
-                                                      context,
-                                                      '/suncatlist',
-                                                      arguments: {
-                                                        "catid":
-                                                        e["id"],
-                                                        "name":
-                                                        e["name"],
-                                                        "_tabSunControllerInt":
-                                                        0
-                                                      });
-                                                },
-                                              ),
-                                              SizedBox(
-                                                height: 5.0,
-                                              ),
-                                              Text(e["name"],
-                                                  style: TextStyle(
-                                                      fontSize: 11.0,
-                                                      //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                                      color: Colors
-                                                          .black87 //颜色使用Colors组件，设置系统自带的颜色
-                                                    //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                                  )),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }).toList()
-                                    : [],
-                              )
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                      //指定循环的数量
+                                      primary: false,
+                                      scrollDirection: Axis.vertical,
+                                      crossAxisCount: 5,
+                                      childAspectRatio: 4 / 5,
+                                      children:
+                                          this._secondaryCouponCate.length > 0
+                                              ? this
+                                                  ._secondaryCouponCate
+                                                  .map((e) {
+                                                  return SingleChildScrollView(
+                                                    physics:
+                                                        NeverScrollableScrollPhysics(),
+                                                    //不允许滚动
+                                                    child: Container(
+                                                      height: 600.0,
+                                                      color: Colors.white,
+                                                      child: Column(
+                                                        children: [
+                                                          Column(
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 10.0,
+                                                              ),
+                                                              InkWell(
+                                                                child: Image
+                                                                    .network(
+                                                                  "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
+                                                                  height: 70.0,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                                onTap: () {
+                                                                  //命名路由传值跳转到栏目列表页
+                                                                  Navigator.pushNamed(
+                                                                      context,
+                                                                      '/suncatlist',
+                                                                      arguments: {
+                                                                        "catid":
+                                                                            e["id"],
+                                                                        "name":
+                                                                            e["name"],
+                                                                        "_tabSunControllerInt":
+                                                                            0
+                                                                      });
+                                                                },
+                                                              ),
+                                                              SizedBox(
+                                                                height: 5.0,
+                                                              ),
+                                                              Text(e["name"],
+                                                                  style: TextStyle(
+                                                                      fontSize: 11.0,
+                                                                      //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                                                      color: Colors.black87 //颜色使用Colors组件，设置系统自带的颜色
+                                                                      //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                                                      )),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList()
+                                              : [],
+                                    )
                                   : Container(),
                             ),
                             //Divider(height: 1.0,color: Colors.black12,), //线条
-                            this._couponData.length>0?Container(
-                                color: Colors.white,
-                                //height: 600.0,
-                                width: double.infinity,
-                                //强制container撑满整个屏幕
-                                alignment: Alignment.center,
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  padding: EdgeInsets.all(10),
-                                  //使用padding 把上下左右留出空白距离
-                                  //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
-                                  gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisSpacing: 10.0, //左右两个之间距离
-                                    mainAxisSpacing: 5.0, //上下两个之间距离
-                                    crossAxisCount: 2, //列数2
-                                    childAspectRatio:
-                                    3 / 5.5, //宽度与高度的比例，通过这个比例设置相应高度
-                                  ),
-                                  itemCount: _couponData.length + 1,
-                                  //指定循环的数量
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    //如果循环到最后一个宝贝，显示加载图标
-                                    if (index == _couponData.length) {
-                                      return _buildProgressIndicator();
-                                    } else {
-                                      return this._getData(context, index);
-                                    }
-                                  },
-                                  //controller: _scrollController,
-                                )):Center(
-                              child: Text("${_dataLoading}"),
-                            )
-
+                            this._couponData.length > 0
+                                ? Container(
+                                    color: Colors.white,
+                                    //height: 600.0,
+                                    width: double.infinity,
+                                    //强制container撑满整个屏幕
+                                    alignment: Alignment.center,
+                                    child: GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      padding: EdgeInsets.all(10),
+                                      //使用padding 把上下左右留出空白距离
+                                      //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisSpacing: 10.0, //左右两个之间距离
+                                        mainAxisSpacing: 5.0, //上下两个之间距离
+                                        crossAxisCount: 2, //列数2
+                                        childAspectRatio:
+                                            3 / 5.5, //宽度与高度的比例，通过这个比例设置相应高度
+                                      ),
+                                      itemCount: _couponData.length,
+                                      //指定循环的数量
+                                      itemBuilder:
+                                          // ignore: missing_return
+                                          (BuildContext context, int index) {
+                                        //如果循环到最后一个宝贝，显示加载图标
+                                        //print(_couponData.length);
+                                        //print(index);
+                                        return this._getData(context, index);
+                                      },
+                                      //controller: _scrollController,
+                                    ))
+                                : Center(
+                                    child: Text("${_dataLoading}"),
+                                  )
                           ],
-                        )
+                        ),
+                        //底部加载提示
+                        Container(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(0, 10.0, 0, 40.0),
+                            child: Center(
+                              child: Text("${_dataLoadingData}"),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -894,7 +902,7 @@ class sunHomeContentState extends State
   Widget _widget_PopupMenuButton() {
     // 弹出搜索类型选项
     return new PopupMenuButton<int>(
-      //icon: Icon(Icons.arrow_drop_up,color: Colors.white,),
+        //icon: Icon(Icons.arrow_drop_up,color: Colors.white,),
         offset: Offset(0, 30),
         padding: EdgeInsets.zero,
         //initialValue: _simpleValue,

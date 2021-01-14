@@ -5,8 +5,6 @@ import 'package:foldable_sidebar/foldable_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:foldable_sidebar/foldable_sidebar.dart';
 
-
-
 class sunMy extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -22,26 +20,31 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-
       child: Scaffold(
-
         body: FoldableSidebarBuilder(
           drawerBackgroundColor: Colors.deepOrange,
-          drawer: CustomDrawer(closeDrawer: (){
-            setState(() {
-              drawerStatus = FSBStatus.FSB_CLOSE;
-            });
-          },),
+          drawer: CustomDrawer(
+            closeDrawer: () {
+              setState(() {
+                drawerStatus = FSBStatus.FSB_CLOSE;
+              });
+            },
+          ),
           screenContents: FirstScreen(),
           status: drawerStatus,
         ),
         floatingActionButton: FloatingActionButton(
             heroTag: 'other',
             backgroundColor: Colors.deepOrange,
-            child: Icon(Icons.menu,color: Colors.white,),
+            child: Icon(
+              Icons.menu,
+              color: Colors.white,
+            ),
             onPressed: () {
               setState(() {
-                drawerStatus = drawerStatus == FSBStatus.FSB_OPEN ? FSBStatus.FSB_CLOSE : FSBStatus.FSB_OPEN;
+                drawerStatus = drawerStatus == FSBStatus.FSB_OPEN
+                    ? FSBStatus.FSB_CLOSE
+                    : FSBStatus.FSB_OPEN;
               });
             }),
       ),
@@ -52,16 +55,71 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
 class FirstScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.teal.withAlpha(200),
-      child: Center(child: Text("Click on FAB to Open Drawer",style: TextStyle(fontSize: 20,color: Colors.white),),),
+    // return Container(
+    //   color: Colors.teal.withAlpha(200),
+    //   child: Center(child: Text("Click on FAB to Open Drawer",style: TextStyle(fontSize: 20,color: Colors.white),),),
+    // );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("aaa"),
+      ),
+      body: Container(
+        color: Colors.teal.withAlpha(200),
+        child: Column(
+          children: [
+            Card(
+              //z轴的高度，设置card的阴影
+              elevation: 20.0,
+              //设置shape，这里设置成了R角
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15.0)),),
+              //对Widget截取的行为，比如这里 Clip.antiAlias 指抗锯齿
+              clipBehavior: Clip.antiAlias,
+              semanticContainer: false,
+              margin: EdgeInsets.all(15),
+              // 这里不能使用 ListView ，因为 ListView 里面不能嵌套 ListView 组件 ,Column 代替
+              // Column 列组件
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(
+                            "收益",
+                            style: TextStyle(color: Colors.blueAccent,fontSize: 28.0),
+                          ),
+                          subtitle: Text("高级工程师"),
+                        ),
+                        ListTile(
+                          title: Text(
+                            "电话：158....",
+                            style: TextStyle(fontSize: 22.0),
+                          ),
+                        ),
+                        ListTile(
+                          title: Text(
+                            "地址：浙江",
+                            style: TextStyle(fontSize: 22.0),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
 
-
 class CustomDrawer extends StatefulWidget {
   final Function closeDrawer;
+
   //退出操作
   const CustomDrawer({Key key, this.closeDrawer}) : super(key: key);
 
@@ -72,12 +130,14 @@ class CustomDrawer extends StatefulWidget {
     return CustomDrawerSon(closeDrawer: this.closeDrawer);
   }
 }
-class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
+
+class CustomDrawerSon extends State with SingleTickerProviderStateMixin {
   final Function closeDrawer;
+
   CustomDrawerSon({this.closeDrawer});
 
-  _sunClear() async{
-    SharedPreferences prefs=await SharedPreferences.getInstance(); //初始化
+  _sunClear() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance(); //初始化
     //prefs.clear();//全部删除
     prefs.remove('sunEmail'); //删除指定key键
     prefs.remove('sunPhone'); //删除指定key键
@@ -99,12 +159,12 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
 
   Future<SharedPreferences> _sunPrefs = SharedPreferences.getInstance();
 
-
   @override
   void initState() {
     super.initState();
     initFromCache();
   }
+
   //获取用户登陆数据
   initFromCache() async {
     SharedPreferences prefs = await _sunPrefs;
@@ -112,15 +172,15 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
     //print("${intValue}");
     if (intValue != "" && intValue != null) {
       return intValue;
-    }else{
+    } else {
       //用户登陆
       //命名路由跳转到某个页面
       Navigator.pushNamed(context, '/sunLogin');
     }
   }
+
   @override
   Widget build(BuildContext context) {
-
     MediaQueryData mediaQuery = MediaQuery.of(context);
     return Container(
       color: Colors.white,
@@ -218,8 +278,6 @@ class CustomDrawerSon extends State with SingleTickerProviderStateMixin{
       ),
     );
   }
-
-
 }
 // class sunMy extends StatefulWidget{
 //   @override
