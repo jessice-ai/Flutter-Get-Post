@@ -41,8 +41,8 @@ dependencies:
   foldable_sidebar: ^1.0.0
   flutter_pickers: ^0.0.2
   webview_flutter: ^1.0.7
-
-
+  fluwx: ^2.5.0+1
+  clipboard: ^0.1.2+8
 
 
 dev_dependencies:

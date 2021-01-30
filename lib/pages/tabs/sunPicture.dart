@@ -31,7 +31,7 @@ class sunPictureSon extends State{
   List _sonFavoritesList = [];
   var _sunTabIndex = 0;
   bool isReflash = false;
-  String _dataLoading = "数据加载中";
+  String _dataLoading = "Loading...";
 
   //获取用户登陆数据
   initFromCache() async {
@@ -101,7 +101,7 @@ class sunPictureSon extends State{
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/CobabyList",
+        .post("https://www.shsun.xyz/tbcouponseconday/CobabyList",
         // ignore: missing_return
         data: sunJsonData)
     // ignore: missing_return
@@ -126,11 +126,11 @@ class sunPictureSon extends State{
             setState(() {
               isLoading = false;
               //isReflash == false;
+              this._dataLoading="";
               //this._couponData = sunResponse.data['data'];
               this._sonFavoritesList.addAll(value.data['data']);
             });
           }
-
         }
         // setState(() {
         //   _sonProductsList = value.data["data"];
@@ -141,7 +141,7 @@ class sunPictureSon extends State{
         if (mounted) {
           setState(() {
             _sunPage--;
-            _dataLoading = "我是有底线的";
+            _dataLoading = "没有数据";
             isLoading = false;
           });
         }
@@ -182,6 +182,7 @@ class sunPictureSon extends State{
     //print("Jessice:A ${tabIndex}");
     if (_sonFavoritesList.isNotEmpty) {
       return Container(
+        height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
         //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
         child: ListView(
@@ -310,8 +311,11 @@ class sunPictureSon extends State{
               child: Text("收藏"),
             ),
           ),
-          body: Center(
-            child: Text(""),
+          body: Container(
+            height: double.infinity,
+            child: Center(
+              child: Text("${_dataLoading}"),
+            ),
           )
       );
     }

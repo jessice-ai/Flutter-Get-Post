@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_alibc/alibc_const_key.dart';
+import 'package:flutter_app/pages/tabs/sunDrawerLeft.dart';
+import 'package:flutter_app/pages/tabs/sunIndexModel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'sunDataSearch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,8 +67,9 @@ class sunHomeContentState extends State
   bool isReflash = false;
   int _sunUserID;
   bool sunLoginStatus = false;
-  String _dataLoading = "";
-  var _dataLoadingData = "数据加载中...";
+  String _dataLoading = "Loading...";
+  var _dataLoadingData = "Loading...";
+  List _sunShSunIndexData = []; //首页优惠券
 
   //dispose生命周期函数
   //dispose 当组件销毁时，触发的生命周期函数
@@ -122,13 +125,13 @@ class sunHomeContentState extends State
         };
         print("POST值: ${sunJsonData}");
         sunResponse = await sunDio
-            .post("http://www.shsun.xyz/tbcouponapi/index", data: sunJsonData);
+            .post("https://www.shsun.xyz/tbcouponapi/index", data: sunJsonData);
         // if(catid!=0){
         //    sunResponse =
-        //   await sunDio.post("http://www.shsun.xyz/tbcouponapi/index",data: sunJsonData);
+        //   await sunDio.post("https://www.shsun.xyz/tbcouponapi/index",data: sunJsonData);
         // }else{
         //    sunResponse =
-        //   await sunDio.post("http://www.shsun.xyz/tbcouponapi/index");
+        //   await sunDio.post("https://www.shsun.xyz/tbcouponapi/index");
         // }
         //print("返回数据:${sunResponse}");
         //print("${isReflash}");
@@ -187,7 +190,7 @@ class sunHomeContentState extends State
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-        await sunDio.post("http://www.shsun.xyz/tbcouponapi/cat");
+        await sunDio.post("https://www.shsun.xyz/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       if (mounted) {
         setState(() {
@@ -230,7 +233,7 @@ class sunHomeContentState extends State
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/cat", data: sunJsonData);
+        .post("https://www.shsun.xyz/tbcouponseconday/cat", data: sunJsonData);
     if (sunResponse.data['code'] == 200) {
       //print("数据:${sunResponse.data['data']}");
       if (mounted) {
@@ -255,9 +258,10 @@ class sunHomeContentState extends State
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getUsertb",
+        .post("https://www.shsun.xyz/tbcouponseconday/getUsertb",
             // ignore: missing_return
             data: sunJsonData)
+        // ignore: missing_return
         .then((value) async {
       //print("打印${value.data}");
       if (value.data["code"] == 300) {
@@ -304,9 +308,10 @@ class sunHomeContentState extends State
     };
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getItb",
+        .post("https://www.shsun.xyz/tbcouponseconday/getItb",
             // ignore: missing_return
             data: sunJsonData)
+        // ignore: missing_return
         .then((value) {
       if (value.data["code"] == 200) {
         _sunToast("授权成功!");
@@ -319,7 +324,6 @@ class sunHomeContentState extends State
   //优惠券结构
   Widget _getData(context, index) {
     var tabIndex = this._sunTabIndex;
-
     if (tabIndex == 0) {
       return Container();
     } else {
@@ -342,7 +346,7 @@ class sunHomeContentState extends State
           xaint = xaintarr[0];
           xbint = "0";
         }
-
+        //print(_couponData);
         return Container(
           alignment: Alignment.center,
           //Column() 组件会竖向铺，但是不会横向自适应铺满；ListView() 横向自动铺满
@@ -369,42 +373,56 @@ class sunHomeContentState extends State
               // ),
               //设置一个空白的高度，方式1，建议
               SizedBox(
-                height: 10,
+                height: 5,
               ),
               Text(
                 _couponData[index]["title"],
-                maxLines: 1,
-                textAlign: TextAlign.center,
+                maxLines: 2,
+                textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   letterSpacing: 1, //字母间隙
                 ),
               ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
-              Container(
-                width: 50.0,
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: Colors.red, width: 1)),
-                child: Text("券${_couponData[index]["coupon_amount"]}元",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.red,
-                      //letterSpacing: 1, //字母间隙
-                    )),
-              ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
+              // Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+              // Container(
+              //   //width: 50.0,
+              //   padding: EdgeInsets.all(5),
+              //   // decoration: BoxDecoration(
+              //   //     image: DecorationImage(
+              //   //         image: NetworkImage("https://www.shsun.xyz/images/a.png"),
+              //   //         fit: BoxFit.fitHeight
+              //   //     )
+              //   // ),
+              //   child: Text("券${_couponData[index]["coupon_amount"]}元",
+              //       style: TextStyle(
+              //         fontSize: 12,
+              //         color: Colors.red,
+              //         //letterSpacing: 1, //字母间隙
+              //       )),
+              // ),
+              // ListTile(
+              //   // onTap: () {
+              //   //   //命名路由跳转到某个页面
+              //   //   Navigator.pushNamed(context, '/sunRecord');
+              //   // },
+              //   leading: Icon(Icons.app_settings_alt_sharp),
+              //   title: Text("券${_couponData[index]["coupon_amount"]}元",
+              //       style: TextStyle(fontSize: 12.0, color: Colors.red)
+              //   ),
+              //
+              // ),
+              // Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
               Row(
                 children: [
                   Text(
-                    "券后 ￥ ",
+                    "券后 ￥",
                     maxLines: 2,
                     textAlign: TextAlign.left,
                     overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Colors.red,
                       fontFamily: 'DMSans',
                       //letterSpacing: 1, //字母间隙
@@ -417,7 +435,7 @@ class sunHomeContentState extends State
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                           style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.red,
                               fontFamily: 'DMSans',
                               fontWeight: FontWeight.bold
@@ -452,19 +470,19 @@ class sunHomeContentState extends State
                     textAlign: TextAlign.left,
                     overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontFamily: 'DMSans',
                       color: Colors.grey,
                       //letterSpacing: 1, //字母间隙
                     ),
                   ),
                   Text(
-                    " ${_couponData[index]["reserve_price"]}",
+                    "${_couponData[index]["reserve_price"]}",
                     maxLines: 2,
                     textAlign: TextAlign.left,
                     overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'DMSans',
                       decoration: TextDecoration.lineThrough, //删除线
                       color: Colors.grey,
@@ -481,7 +499,7 @@ class sunHomeContentState extends State
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontFamily: 'DMSans',
                   color: Colors.grey,
                   //letterSpacing: 1, //字母间隙
@@ -509,7 +527,7 @@ class sunHomeContentState extends State
                         child: Text(
                           "分享赚${_couponData[index]["estimated_New"]}元",
                           style: TextStyle(
-                            fontSize: 12.0,
+                            fontSize: 10.0,
                             color: Colors.white,
                             //letterSpacing: 1, //字母间隙
                             //fontWeight: FontWeight.bold, //加粗
@@ -545,7 +563,7 @@ class sunHomeContentState extends State
                         child: Text(
                           "自购得${_couponData[index]["estimated_New"]}元",
                           style: TextStyle(
-                            fontSize: 12.0,
+                            fontSize: 10.0,
                             color: Colors.white,
                             //letterSpacing: 1, //字母间隙
                             //fontWeight: FontWeight.bold, //加粗
@@ -572,7 +590,11 @@ class sunHomeContentState extends State
               ),
         );
       } else {
-        return Container();
+        return Container(
+          child: Center(
+            child: Text("${_dataLoading}"),
+          ),
+        );
       }
     }
   }
@@ -638,7 +660,6 @@ class sunHomeContentState extends State
   void initState() {
     super.initState();
     initFromCache(); //验证用户是否登陆
-
     _sunDioPostData(); //获取优惠券
     _sunDioPostCateData(); //获取栏目
     /**
@@ -672,6 +693,7 @@ class sunHomeContentState extends State
   Widget build(BuildContext context) {
     super.build(context);
     // TODO: implement build
+
     //throw UnimplementedError();
     /**
      * 因数据异步远程获取
@@ -704,7 +726,7 @@ class sunHomeContentState extends State
           ),
           actions: <Widget>[
             new Container(
-                child: RaisedButton.icon(
+                child: FlatButton.icon(
               label: Text("搜索"),
               color: Colors.white, //背景颜色
               onPressed: () {
@@ -716,13 +738,13 @@ class sunHomeContentState extends State
             )),
           ],
         ),
+        drawer: sunDrawerLeft(),
         body: TabBarView(
           controller: this._tabController, //注意，必须得加
           children: this._couponCate.map((e) {
             if (_sunTabIndex == 0) {
-              return Container(
-                child: Text("首页视图内容"),
-              );
+              //首页代码模块
+              return sunIndexModel();
             } else {
               //print(_secondaryCouponCate.length);
               if (this._couponData.length > 0) {
@@ -747,7 +769,7 @@ class sunHomeContentState extends State
                                       primary: false,
                                       scrollDirection: Axis.vertical,
                                       crossAxisCount: 5,
-                                      childAspectRatio: 4 / 5,
+                                      childAspectRatio: 5 / 5,
                                       children:
                                           this._secondaryCouponCate.length > 0
                                               ? this
@@ -758,7 +780,7 @@ class sunHomeContentState extends State
                                                         NeverScrollableScrollPhysics(),
                                                     //不允许滚动
                                                     child: Container(
-                                                      height: 600.0,
+                                                      //height: 600.0,
                                                       color: Colors.white,
                                                       child: Column(
                                                         children: [
@@ -771,7 +793,7 @@ class sunHomeContentState extends State
                                                                 child: Image
                                                                     .network(
                                                                   "https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64",
-                                                                  height: 70.0,
+                                                                  height: 50.0,
                                                                   fit: BoxFit
                                                                       .cover,
                                                                 ),
@@ -831,7 +853,7 @@ class sunHomeContentState extends State
                                         mainAxisSpacing: 5.0, //上下两个之间距离
                                         crossAxisCount: 2, //列数2
                                         childAspectRatio:
-                                            3 / 5.5, //宽度与高度的比例，通过这个比例设置相应高度
+                                            0.6, //宽度与高度的比例，通过这个比例设置相应高度
                                       ),
                                       itemCount: _couponData.length,
                                       //指定循环的数量
@@ -866,7 +888,7 @@ class sunHomeContentState extends State
               } else {
                 return Container(
                   child: Center(
-                    child: Text("${_dataLoading}"),
+                    child: Text("${_dataLoadingData}"),
                   ),
                 );
               }

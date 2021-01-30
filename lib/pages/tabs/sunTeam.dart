@@ -25,7 +25,7 @@ class sunTeamSon extends State{
     print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/teams",
+        .post("https://www.shsun.xyz/tbcouponseconday/teams",
         // ignore: missing_return
         data: sunJsonData)
     // ignore: missing_return

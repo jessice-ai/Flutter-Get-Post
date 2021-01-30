@@ -4,17 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:date_format/date_format.dart';
 
-class sunIncomeBreakdown extends StatefulWidget{
+class sunWithdrawalsRecord extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
     //throw UnimplementedError();
-    return sunIncomeBreakdownSon();
+    return sunWithdrawalsRecordSon();
   }
+
 }
-class sunIncomeBreakdownSon extends State{
+class sunWithdrawalsRecordSon extends State{
+  ScrollController _scrollController = new ScrollController();
   int _sunUserID;
   List _sunBreakdown = [];
+  int _sunPage = 1;
+  bool isLoading = false;
   bool isReflash = false;
   String _sunLoading = "Loading...";
   Future<SharedPreferences> _sunPrefs = SharedPreferences.getInstance();
@@ -24,38 +28,78 @@ class sunIncomeBreakdownSon extends State{
     //验证用户登陆状态
     initFromCache().then((result) {
       this._sunUserID = result;
-      _sunGetIncomeBreakdown(); //用户收益明细,列表
+      _sunGetIncomeBreakdown(); //提现记录列表
     });
+    /**
+     * 侦听滚动事件
+     */
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        this._sunPage++;
+        _sunGetIncomeBreakdown(); //提现记录列表
+      }
+    });
+  }
+  // ignore: must_call_super
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose(); //销魂滚动控件
   }
   //用户收益明细,列表
   _sunGetIncomeBreakdown() async {
+    if (isReflash == true) {
+      this._sunPage = 1;
+    }
     if(mounted){
       setState(() {
-        isReflash = false;
+        isLoading = true;
+        _sunLoading = "数据加载中";
       });
     }
     //只有用户登陆状态判断过了才能返回数据
-    Map sunJsonData = {"uid": _sunUserID};
+    Map sunJsonData = {"uid": _sunUserID,"page":_sunPage};
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "https://www.shsun.xyz/tb/Incomebreakdown",
+        "https://www.shsun.xyz/tb/listrecord",
         data: sunJsonData);
-
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
-      if(mounted){
+      if (isReflash == true) {
+        //下拉刷新重置数组
+        if (mounted) {
+          setState(() {
+            this._sunBreakdown = sunResponse.data['data'];
+            isLoading = false;
+            isReflash = false;
+          });
+        }
+        //print("重置完${_sunBreakdown}");
+        //print("优惠券数组重置，现在有:${_couponData.length} 条数据");
+      } else {
+        //上拉加载新数据
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+            //isReflash == false;
+            //this._couponData = sunResponse.data['data'];
+            this._sunBreakdown.addAll(sunResponse.data['data']);
+          });
+        }
+      }
+
+    } else {
+      if (mounted) {
         setState(() {
-          _sunBreakdown = sunResponse.data['data'];
+          _sunPage--;
+          _sunLoading = "我是有底线的";
+          isLoading = false;
         });
       }
-    } else {
-      _sunLoading = "暂时没有交易明细";
-      return [];
       //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
     }
   }
-
   //获取用户登陆数据
   initFromCache() async {
     SharedPreferences prefs = await _sunPrefs;
@@ -87,11 +131,12 @@ class sunIncomeBreakdownSon extends State{
     //throw UnimplementedError();
     return Scaffold(
       appBar: AppBar(
-        title: Text("收入明细"),
+        title: Text("提现记录"),
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Container(
             //color: Colors.blue,
             child: Column(
@@ -125,7 +170,7 @@ class sunIncomeBreakdownSon extends State{
                             height: 48.0,
                             width: double.infinity,
                             alignment: Alignment.center,
-                            child: Text("类目",
+                            child: Text("提现金额",
                                 textAlign: TextAlign.center,
                                 style:TextStyle(
                                   //fontWeight: FontWeight.bold, //加粗
@@ -143,7 +188,7 @@ class sunIncomeBreakdownSon extends State{
                             height: 48.0,
                             width: double.infinity,
                             alignment: Alignment.center,
-                            child: Text("预估收益",
+                            child: Text("到账金额",
                                 textAlign: TextAlign.center,
                                 style:TextStyle(
                                   //fontWeight: FontWeight.bold, //加粗
@@ -162,7 +207,7 @@ class sunIncomeBreakdownSon extends State{
                             height: 48.0,
                             width: double.infinity,
                             alignment: Alignment.center,
-                            child: Text("时间",
+                            child: Text("提现时间",
                                 textAlign: TextAlign.center,
                                 style:TextStyle(
                                   //fontWeight: FontWeight.bold, //加粗
@@ -191,12 +236,36 @@ class sunIncomeBreakdownSon extends State{
                             ),
                           ),
                         ),
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.cyan,
+                            height: 48.0,
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            child: Text("手续费",
+                                textAlign: TextAlign.center,
+                                style:TextStyle(
+                                  //fontWeight: FontWeight.bold, //加粗
+                                    fontSize:14.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                    color:Colors.white //颜色使用Colors组件，设置系统自带的颜色
+                                  //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                )
+                            ),
+                          ),
+                        )
                       ],
                     )
                   ],
                 ),
                 Column(
                   children: this._sunBreakdown.length>0?this._sunBreakdown.map((e){
+                    // DateTime dateTime = e["created_at"].toDate();
+                    // print(e["created_at"]);
+                    // print(DateTime.parse(e["created_at"])); //字符串转化DateTime,2021-01-20 14:02:32.000
+                    // formatDate(DateTime.parse(e["created_at"]) ,[mm,'-',dd," ",HH,":",nn]); //DateTime 格式化为 formatString
+
+                    //formatDate(DateTime ,[yyyy,'-',mm,'-',dd]);
                     return Column(
                       children: [
                         Row(
@@ -225,7 +294,7 @@ class sunIncomeBreakdownSon extends State{
                                 height: 48.0,
                                 width: double.infinity,
                                 alignment: Alignment.center,
-                                child: Text("${e["item_category_name"]}",
+                                child: Text("${e["amount"]}",
                                     textAlign: TextAlign.center,
                                     style:TextStyle(
                                       //fontWeight: FontWeight.bold, //加粗
@@ -241,7 +310,7 @@ class sunIncomeBreakdownSon extends State{
                                 height: 48.0,
                                 width: double.infinity,
                                 alignment: Alignment.center,
-                                child: Text("${e["commission"]}",
+                                child: Text("${e["amount_account"]}",
                                     textAlign: TextAlign.center,
                                     style:TextStyle(
                                       //fontWeight: FontWeight.bold, //加粗
@@ -251,6 +320,7 @@ class sunIncomeBreakdownSon extends State{
                                 ),
                               ),
                             ),
+
 
                             Expanded(
                               flex: 3,
@@ -274,7 +344,7 @@ class sunIncomeBreakdownSon extends State{
                                 height: 48.0,
                                 width: double.infinity,
                                 alignment: Alignment.center,
-                                child: Text("${e["tk_status_name"]}",
+                                child: Text(e["status"]==1?"待审核":"已审核",
                                     textAlign: TextAlign.center,
                                     style:TextStyle(
                                       //fontWeight: FontWeight.bold, //加粗
@@ -284,21 +354,40 @@ class sunIncomeBreakdownSon extends State{
                                 ),
                               ),
                             ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                height: 48.0,
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                child: Text("${e["percentage_handling_fee"]}",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      //fontWeight: FontWeight.bold, //加粗
+                                      fontSize:14.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                      //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                    )
+                                ),
+                              ),
+                            )
                           ],
                         ),
                         Divider(height: 1.0,color: Colors.black12,),
                       ],
                     );
-
                   }).toList():[
-                    Container(
-                      height: MediaQuery.of(context).size.height-130,
-                      child: Center(
-                        child: Text("${_sunLoading}"),
-                      ),
-                    )
+                    Container()
                   ],
                 ),
+                isLoading==true?Container(
+                  //color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10.0, 0, 16.0),
+                    child: Center(
+                      child: Text("${_sunLoading}"),
+                    ),
+                  ),
+                ):Container()
               ],
             ),
           ),

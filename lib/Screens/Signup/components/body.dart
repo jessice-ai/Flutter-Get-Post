@@ -31,7 +31,7 @@ class BodydSon extends State{
   _sunPostData() async{
     // print("${_sunName}");
     // print("${_sunPassword}");
-    var ApiUrl = "http://www.shsun.xyz/User/reg";
+    var ApiUrl = "https://www.shsun.xyz/User/reg";
     //{"name":"黄磊","age":23}这个是Map类型数据
     var result = await http.post(ApiUrl,body: {"email":"${_sunName}","password":"${_sunPassword}","referralcode":"${_sunReferralcode}"});
     if(result.statusCode == 200){

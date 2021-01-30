@@ -1,7 +1,4 @@
-
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +9,9 @@ import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'package:flutter_alibc/alibc_const_key.dart';
 import 'package:flutter_alibc/flutter_alibc.dart';
+import 'package:fluwx/fluwx.dart';
+
+
 
 
 class sunProductDetailsPage extends StatefulWidget {
@@ -36,6 +36,16 @@ class sunProductDetailsPageSon extends State {
   bool sunLoginStatus = false;
   List _sunSmallImage = [];
   int _sunFavoritesStatus = 0;
+  String _sunWxurl = "";
+  String _sunWxtitle = "";
+  String _thumnail = "";
+
+  /// WeChatScene.TIMELINE 分享到朋友圈
+  /// WeChatScene.FAVORITE 添加到收藏
+  /// WeChatScene.SESSION 回话
+
+  WeChatScene scene = WeChatScene.SESSION;
+
   //获取用户登陆数据
   initFromCache() async {
     SharedPreferences prefs = await _sunPrefs;
@@ -43,7 +53,7 @@ class sunProductDetailsPageSon extends State {
     // ignore: unrelated_type_equality_checks
     if (intValue != "" && intValue != null) {
       return intValue;
-    }else{
+    } else {
       //用户登陆
       //命名路由跳转到某个页面
       Navigator.pushNamed(context, '/sunLogin');
@@ -53,22 +63,35 @@ class sunProductDetailsPageSon extends State {
   @override
   void initState() {
     super.initState();
+    _initFluwx();
 
     //验证用户登陆状态
-    initFromCache().then((result) {
+    initFromCache().then((result) async {
       this._sunUserID = result;
       //print("用户ID:${result}");
       _contentId = this.arguments["contentId"];
-      _sunGetGoodsDetail(contentID: _contentId).then((result) {
+
+      _sunGetGoodsDetail(contentID: _contentId).then((result)  {
         //print(result);
         setState(() {
           this._sunContentData = result;
           _sunFavoritesStatus = result[0]['collectionsStatus']; //更新收藏状态
         });
+
       });
+
     });
   }
 
+  _initFluwx() async {
+    await registerWxApi(
+        appId: "wx648227e6e2238e14",
+        doOnAndroid: true,
+        doOnIOS: true,
+        universalLink: "https://www.shsun.xyz/");
+    var result = await isWeChatInstalled;
+    //print("is installed $result");
+  }
   sunProductDetailsPageSon({this.arguments});
 
   _sunGetGoodsDetail({contentID = 0}) async {
@@ -77,7 +100,7 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://www.shsun.xyz/tbcouponseconday/content",
+        "https://www.shsun.xyz/tbcouponseconday/content",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
@@ -89,83 +112,106 @@ class sunProductDetailsPageSon extends State {
     }
   }
 
-  _sunGetUserTaobaoauth({itemid}) async{
+  _sunGetUserTaobaoauth({itemid,status}) async {
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
-    Response sunResponse = await sunDio.post(
-        "http://www.shsun.xyz/tbcouponseconday/getUsertb",
+    Response sunResponse = await sunDio
+        .post("https://www.shsun.xyz/tbcouponseconday/getUsertb",
+            // ignore: missing_return
+            data: sunJsonData)
         // ignore: missing_return
-        data: sunJsonData).then((value) async {
-          print("打印${value.data}");
-          if(value.data["code"]==300) {
-            //没有授权过
-            FlutterAlibc.loginOut();
-            await FlutterAlibc.initAlibc(appName: "夜市优惠券",version: "1.0.0+1").then((value) async {
-              await FlutterAlibc.loginTaoBao().then((value) async{
-                Navigator.pushNamed(context, '/sunTb');
-              });
-            });
-          }else if(value.data["code"]==400){
-            //print("用户未登录");
-            //用户未登录
-            _sunToast("请先登陆!");
-          }else if(value.data["code"]==200){
+        .then((value) async {
+      //print("打印${value.data}");
+      if (value.data["code"] == 300) {
+        //没有授权过
+        FlutterAlibc.loginOut();
+        await FlutterAlibc.initAlibc(appName: "夜市优惠券", version: "1.0.0+1")
+            .then((value) async {
+          await FlutterAlibc.loginTaoBao().then((value) async {
+            Navigator.pushNamed(context, '/sunTb');
+          });
+        });
+      } else if (value.data["code"] == 400) {
+        //print("用户未登录");
+        //用户未登录
+        _sunToast("请先登陆!");
+      } else if (value.data["code"] == 200) {
+        _sunSmallImage = json.decode(this._sunContentData[0]['small_images']);
+        if(mounted){
+          setState(() {
+            _sunWxurl = this._sunContentData[0]['coupon_share_url'] +
+                "&relationId=${value.data["data"]}";
+            _thumnail = _sunSmallImage[0]["url"];
+          });
+        }
+        if(status==2){
+          //自购赚
+          await FlutterAlibc.initAlibc(appName: "夜市优惠券", version: "1.0.0+1")
+              .then((dee) async {
+            //print(this._sunContentData[0]['url']);
+            //APP内部打开网页
+            Map _sunTrackParam = {"relationId": value.data["data"]};
+            //链接客户的渠道关系ID
+            var result = await FlutterAlibc.openByUrl(
+              url: this._sunContentData[0]['coupon_share_url'] +
+                  "&relationId=${value.data["data"]}",
+              //backUrl: "tbopen27822502:https://h5.m.taobao.com",
+              openType: AlibcOpenType.AlibcOpenTypeAuto,
+              isNeedCustomNativeFailMode: true,
+              nativeFailMode: AlibcNativeFailMode.AlibcNativeFailModeNone,
+              schemeType: AlibcSchemeType.AlibcSchemeTaoBao,
+              //backUrl:"",
+            );
+            //唤起淘宝APP客户端
 
-            await FlutterAlibc.initAlibc(appName: "夜市优惠券",version: "1.0.0+1").then((dee) async {
-              //print(this._sunContentData[0]['url']);
-              //APP内部打开网页
-              Map _sunTrackParam = {
-                "relationId":value.data["data"]
-              };
-              //链接客户的渠道关系ID
-              var result = await FlutterAlibc.openByUrl(
-                  url:this._sunContentData[0]['coupon_share_url']+"&relationId=${value.data["data"]}",
-                  //backUrl: "tbopen27822502:https://h5.m.taobao.com",
-                  openType : AlibcOpenType.AlibcOpenTypeAuto,
-                  isNeedCustomNativeFailMode: true,
-                  nativeFailMode :    AlibcNativeFailMode.AlibcNativeFailModeNone,
-                  schemeType : AlibcSchemeType.AlibcSchemeTaoBao,
-                  //backUrl:"",
-              );
-              //唤起淘宝APP客户端
+            // print(_sunTrackParam);
+            // var result = await FlutterAlibc.openItemDetail(
+            //   itemID:itemid,	//必须参数
+            //   openType : AlibcOpenType.AlibcOpenTypeAuto,
+            //   isNeedCustomNativeFailMode : false,
+            //   nativeFailMode :    AlibcNativeFailMode.AlibcNativeFailModeNone,
+            //   schemeType : AlibcSchemeType.AlibcSchemeTaoBao,
+            //   //taokeParams : {},
+            //   trackParam : _sunTrackParam, //需要额外追踪的业务数据
+            //   backUrl:"",
+            // );
+            // print(result);
+          });
+        }else if(status==1){
+          //分享得
+          _share();
+        }
 
-              // print(_sunTrackParam);
-              // var result = await FlutterAlibc.openItemDetail(
-              //   itemID:itemid,	//必须参数
-              //   openType : AlibcOpenType.AlibcOpenTypeAuto,
-              //   isNeedCustomNativeFailMode : false,
-              //   nativeFailMode :    AlibcNativeFailMode.AlibcNativeFailModeNone,
-              //   schemeType : AlibcSchemeType.AlibcSchemeTaoBao,
-              //   //taokeParams : {},
-              //   trackParam : _sunTrackParam, //需要额外追踪的业务数据
-              //   backUrl:"",
-              // );
-              // print(result);
-            });
-            //print(result);
-          }else{
-            //其他错误
-          }
+        //print(result);
+      } else {
+        //其他错误
+      }
     });
-
   }
-  _sunGetUserTaobaoauthPost(String nick,String topAccessToken) async {
-    Map sunJsonData = {"uid": _sunUserID,"nick":nick,"topAccessToken":topAccessToken};
+
+  _sunGetUserTaobaoauthPost(String nick, String topAccessToken) async {
+    Map sunJsonData = {
+      "uid": _sunUserID,
+      "nick": nick,
+      "topAccessToken": topAccessToken
+    };
     print("参数:${sunJsonData}");
     var sunDio = Dio();
-    Response sunResponse = await sunDio.post(
-        "http://www.shsun.xyz/tbcouponseconday/getItb",
+    Response sunResponse = await sunDio
+        .post("https://www.shsun.xyz/tbcouponseconday/getItb",
+            // ignore: missing_return
+            data: sunJsonData)
         // ignore: missing_return
-        data: sunJsonData).then((value){
-          if(value.data["code"]==200){
-            print("${value.data["data"]}");
-            _sunToast("授权成功!");
-          }else{
-            _sunToast("授权失败!");
-          }
+        .then((value) {
+      if (value.data["code"] == 200) {
+        //print("${value.data["data"]}");
+        _sunToast("授权成功!");
+      } else {
+        _sunToast("授权失败!");
+      }
     });
-
   }
+
   //客户收藏宝贝
   _sunFavoritesGoods({contentID = 0}) async {
     //只有用户登陆状态判断过了才能返回数据
@@ -173,14 +219,14 @@ class sunProductDetailsPageSon extends State {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
-        "http://www.shsun.xyz/tbcouponseconday/Cobaby",
+        "https://www.shsun.xyz/tbcouponseconday/Cobaby",
         data: sunJsonData);
     //print("数据:${sunResponse.data['data']}");
     if (sunResponse.data['code'] == 200) {
       setState(() {
         _sunFavoritesStatus = 1;
       });
-    }else if(sunResponse.data['code'] == 300){
+    } else if (sunResponse.data['code'] == 300) {
       setState(() {
         _sunFavoritesStatus = 0;
       });
@@ -188,16 +234,51 @@ class sunProductDetailsPageSon extends State {
     _sunToast("${sunResponse.data['message']}");
   }
 
+  void _share() {
+    int mstatus=2;
+    //print(_sunWxurl);
+    if(mstatus==1){
+      //分享网页
+      var model = WeChatShareWebPageModel(
+        _sunWxurl,
+        title: _sunWxtitle,
+        thumbnail: WeChatImage.network(_thumnail),
+        scene: scene,
+      );
+      shareToWeChat(model);
+    }else if(mstatus==2){
+      //分享图片
+      var model = WeChatShareImageModel(
+          WeChatImage.network(_thumnail),
+        title: _sunWxtitle,
+        description: "描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述",
+        scene: scene,
+      );
+      var model2 = WeChatShareImageModel(
+        WeChatImage.network(_thumnail),
+        title: _sunWxtitle,
+        description: "描述22222描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述",
+        scene: scene,
+      );
+      shareToWeChat(model);
+      shareToWeChat(model2);
+
+    }
+
+  }
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     //throw UnimplementedError();
     if (this._sunContentData.length > 0) {
+
       String small_images = this._sunContentData[0]['small_images'];
       _sunSmallImage = json.decode(small_images);
       //print("${this._sunContentData[0]}");
       //print("${this._sunSmallImage.length} 张图片");
-      var _sunCoPrice = _sunContentData[0]["zk_final_price"]-_sunContentData[0]["coupon_amount"];
+      var _sunCoPrice = _sunContentData[0]["zk_final_price"] -
+          _sunContentData[0]["coupon_amount"];
+      _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
       return Scaffold(
         appBar: AppBar(
           leading: new IconButton(
@@ -262,8 +343,7 @@ class sunProductDetailsPageSon extends State {
                                     Padding(
                                         padding:
                                             EdgeInsets.fromLTRB(1, 0, 0, 0)),
-                                    Text(
-                                        "${_sunCoPrice}",
+                                    Text("${_sunCoPrice}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             //加粗
@@ -315,6 +395,7 @@ class sunProductDetailsPageSon extends State {
                                   ),
                                 ),
                               ),
+
                             ],
                           ),
                         ),
@@ -347,7 +428,6 @@ class sunProductDetailsPageSon extends State {
                       //底部定位
                     ],
                   ),
-
                 ],
               ),
             ),
@@ -382,7 +462,7 @@ class sunProductDetailsPageSon extends State {
                               width: 0))),
                   child: Container(
                     padding:
-                        EdgeInsets.only(left: 0, right: 0, top: 10, bottom: 10),
+                        EdgeInsets.only(left: 0, right: 0, top: 5, bottom: 5),
                     child: Row(
                       children: [
                         Expanded(
@@ -415,45 +495,47 @@ class sunProductDetailsPageSon extends State {
                               children: [
                                 Padding(
                                     padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
-                                _sunFavoritesStatus==1?Icon(
-                                  Icons.favorite, //实心
-                                  //Icons.favorite_border 空心 Icons.favorite 实心
-                                  color: Colors.red,
-                                ):Icon(
-                                  Icons.favorite_border, //空心
-                                  //Icons.favorite_border 空心 Icons.favorite 实心
-                                  color: Colors.black,
-                                )
-                                ,
+                                _sunFavoritesStatus == 1
+                                    ? Icon(
+                                        Icons.favorite, //实心
+                                        //Icons.favorite_border 空心 Icons.favorite 实心
+                                        color: Colors.red,
+                                      )
+                                    : Icon(
+                                        Icons.favorite_border, //空心
+                                        //Icons.favorite_border 空心 Icons.favorite 实心
+                                        color: Colors.black,
+                                      ),
                                 Text("收藏", style: TextStyle(fontSize: 12.0))
                               ],
                             ),
                             onTap: () {
-                              _sunFavoritesGoods(contentID: _sunContentData[0]["id"]);
+                              _sunFavoritesGoods(
+                                  contentID: _sunContentData[0]["id"]);
                             },
                           ),
                         ),
                         Padding(padding: EdgeInsets.fromLTRB(0, 0, 5, 0)),
                         Expanded(
-                          flex: 3,
-                          child:InkWell(
+                          flex: 2,
+                          child: InkWell(
                             child: Container(
                               height: 38.0,
                               decoration: BoxDecoration(
-                                //border: Border.all(color: Colors.red, width: 1),//边框
-                                //border: Border.all(color: Colors.white, width: 1),//边框
+                                  //border: Border.all(color: Colors.red, width: 1),//边框
+                                  //border: Border.all(color: Colors.white, width: 1),//边框
                                   color: Colors.blue,
                                   borderRadius: BorderRadius.all(
                                     //圆角
-                                    Radius.circular(66.0),
+                                    Radius.circular(10.0),
                                   )
-                                //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
-                              ),
+                                  //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
+                                  ),
                               alignment: Alignment.center,
                               child: Text(
                                 "分享赚2元",
                                 style: TextStyle(
-                                  fontSize: 16.0,
+                                  fontSize: 14.0,
                                   color: Colors.white,
                                   letterSpacing: 2, //字母间隙
                                   //fontWeight: FontWeight.bold, //加粗
@@ -464,17 +546,21 @@ class sunProductDetailsPageSon extends State {
                                 ),
                               ),
                             ),
-                            onTap: (){
-                              print("分享得");
+                            onTap: () {
+                              Navigator.pushNamed(context, '/sunshar',
+                                  arguments: {"contentId": _sunContentData[0]["id"]});
+                              // _sunGetUserTaobaoauth(
+                              //     itemid: _sunContentData[0]["item_id"],status: 1);
+                              // _sunWxtitle = "${this._sunContentData[0]["title"]}";
+                              //openWeChatApp();
+                              //print("分享得");
                             },
                           ),
-
-
                         ),
                         Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
                         Expanded(
-                          flex: 3,
-                          child:InkWell(
+                          flex: 2,
+                          child: InkWell(
                             child: Container(
                               height: 38.0,
                               decoration: BoxDecoration(
@@ -483,15 +569,15 @@ class sunProductDetailsPageSon extends State {
                                   //border: Border.all(color: Colors.red, width: 1),//边框
                                   borderRadius: BorderRadius.all(
                                     //圆角
-                                    Radius.circular(70.0),
+                                    Radius.circular(10.0),
                                   )
-                                //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
-                              ),
+                                  //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
+                                  ),
                               alignment: Alignment.center,
                               child: Text(
                                 "自购赚2元",
                                 style: TextStyle(
-                                  fontSize: 16.0,
+                                  fontSize: 14.0,
                                   color: Colors.white,
                                   letterSpacing: 2, //字母间隙
                                   //fontWeight: FontWeight.bold, //加粗
@@ -503,9 +589,9 @@ class sunProductDetailsPageSon extends State {
                               ),
                             ),
                             onTap: () async {
-                              _sunGetUserTaobaoauth(itemid: _sunContentData[0]["item_id"]);
+                              _sunGetUserTaobaoauth(
+                                  itemid: _sunContentData[0]["item_id"],status: 2);
                               // print("自购赚");
-
                             },
                           ),
                         ),
@@ -536,13 +622,14 @@ class sunProductDetailsPageSon extends State {
       fit: BoxFit.fill,
     );
   }
-  _sunFavorites({goodsid=0}){
-    if(goodsid!=0){
 
-    }else{
+  _sunFavorites({goodsid = 0}) {
+    if (goodsid != 0) {
+    } else {
       _sunToast("ID错误");
     }
   }
+
   _sunToast(String message) {
     Fluttertoast.showToast(
         msg: "${message}",

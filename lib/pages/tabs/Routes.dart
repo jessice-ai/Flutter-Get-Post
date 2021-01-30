@@ -1,8 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/pages/tabs/sunAlipay.dart';
 import 'package:flutter_app/pages/tabs/sunAutoTb.dart';
 import 'package:flutter_app/pages/tabs/sunIncomeBreakdown.dart';
+import 'package:flutter_app/pages/tabs/sunReceivingAccount.dart';
+import 'package:flutter_app/pages/tabs/sunSetting.dart';
+import 'package:flutter_app/pages/tabs/sunShareEarn.dart';
 import 'package:flutter_app/pages/tabs/sunTeam.dart';
+import 'package:flutter_app/pages/tabs/sunWithdrawalsRecord.dart';
 import 'sunGoodsList.dart';
 import 'sunCategory.dart';
 import 'sunMy.dart';
@@ -44,7 +49,12 @@ final routes = {
   "/suncatlist":(context,{arguments})=>sunCategoriesList(arguments:arguments),
   "/sunTeam":(context)=>sunTeam(),
   "/sunTb":(context)=>sunAutoTb(),
-  "/sunBreakdown":(context)=>sunIncomeBreakdown()
+  "/sunBreakdown":(context)=>sunIncomeBreakdown(),
+  "/setting":(context)=>sunSetting(),
+  "/sunRecei":(context)=>sunReceivingAccount(),
+  "/sunali":(context)=>sunAlipay(),
+  "/sunRecord":(context)=>sunWithdrawalsRecord(),
+  "/sunshar":(context,{arguments})=>sunShareEarn(arguments:arguments),
 
 
 };

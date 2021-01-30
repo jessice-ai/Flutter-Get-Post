@@ -35,9 +35,9 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
   List _sonProductsList = [];
   TabController _tabController;
   int _sunIndex = 0;
-  String _dataLoading = "";
+  String _dataLoading = "Loading...";
   bool sunLoginStatus = false;
-  var _dataLoadingData = "数据加载中...";
+  var _dataLoadingData = "Loading...";
 
   _sunToast(String message) {
     Fluttertoast.showToast(
@@ -110,7 +110,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getcategory",
+        .post("https://www.shsun.xyz/tbcouponseconday/getcategory",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -168,7 +168,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
     };
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getItb",
+        .post("https://www.shsun.xyz/tbcouponseconday/getItb",
             // ignore: missing_return
             data: sunJsonData)
         .then((value) {
@@ -202,7 +202,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getsongoods",
+        .post("https://www.shsun.xyz/tbcouponseconday/getsongoods",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -240,7 +240,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
         if (mounted) {
           setState(() {
             _sunPage--;
-            _dataLoadingData = "我是有底线的";
+            _dataLoadingData = "没有数据";
             _dataLoading = "没有数据";
             isLoading = false;
           });
@@ -270,9 +270,10 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
     Map sunJsonData = {"uid": _sunUserID};
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/getUsertb",
+        .post("https://www.shsun.xyz/tbcouponseconday/getUsertb",
             // ignore: missing_return
             data: sunJsonData)
+        // ignore: missing_return
         .then((value) async {
       //print("打印${value.data}");
       if (value.data["code"] == 300) {
@@ -370,20 +371,20 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                 letterSpacing: 1, //字母间隙
               ),
             ),
-            Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
-            Container(
-              width: 50.0,
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Colors.red, width: 1)),
-              child: Text("券${_sonProductsList[index]["coupon_amount"]}元",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.red,
-                    //letterSpacing: 1, //字母间隙
-                  )),
-            ),
+            // Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+            // Container(
+            //   width: 50.0,
+            //   padding: EdgeInsets.all(5),
+            //   decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(5),
+            //       border: Border.all(color: Colors.red, width: 1)),
+            //   child: Text("券${_sonProductsList[index]["coupon_amount"]}元",
+            //       style: TextStyle(
+            //         fontSize: 14,
+            //         color: Colors.red,
+            //         //letterSpacing: 1, //字母间隙
+            //       )),
+            // ),
             Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
             Row(
               children: [
@@ -393,7 +394,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                   textAlign: TextAlign.left,
                   overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Colors.red,
                     fontFamily: 'DMSans',
                     //letterSpacing: 1, //字母间隙
@@ -406,7 +407,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             color: Colors.red,
                             fontFamily: 'DMSans',
                             fontWeight: FontWeight.bold
@@ -441,7 +442,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                   textAlign: TextAlign.left,
                   overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontFamily: 'DMSans',
                     color: Colors.grey,
                     //letterSpacing: 1, //字母间隙
@@ -469,7 +470,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
               textAlign: TextAlign.left,
               overflow: TextOverflow.ellipsis, //溢出之后显示三个点
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontFamily: 'DMSans',
                 color: Colors.grey,
                 //letterSpacing: 1, //字母间隙
@@ -560,7 +561,11 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
             ),
       );
     } else {
-      return Container();
+      return Container(
+        child: Center(
+          child: Text("${_dataLoading}"),
+        ),
+      );
     }
   }
 
@@ -605,7 +610,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
           ),
           actions: <Widget>[
             new Container(
-                child: RaisedButton.icon(
+                child: FlatButton.icon(
               label: Text("搜索"),
               color: Colors.white, //背景颜色
               onPressed: () {
@@ -681,7 +686,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
             } else {
               return Container(
                 child: Center(
-                  child: Text("${_dataLoading}"),
+                  child: Text("${_dataLoadingData}"),
                 ),
               );
             }

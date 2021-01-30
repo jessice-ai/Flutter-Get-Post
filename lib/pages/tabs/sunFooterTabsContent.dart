@@ -4,10 +4,10 @@ import 'sunSetting.dart';
 import 'sunHome.dart';
 import 'sunMy.dart';
 import 'sunPicture.dart';
-/**
- * StatelessWidget 无状态组件
- * StatefulWidget 有状态组件，点击页面脚本出发页面数据发生变化
- */
+
+/// StatelessWidget 无状态组件
+/// StatefulWidget 有状态组件，点击页面脚本出发页面数据发生变化
+
 class sunFooterTabsContent extends StatefulWidget{
   final index;
   sunFooterTabsContent({Key key,this.index=0}) : super(key:key);
@@ -52,9 +52,11 @@ class _sunFooterTabsContentState extends State{
         onTap: (int index){
           //print(index);
           //重新渲染页面
-          setState(() {
-            this._currentIndex = index;
-          });
+          if(mounted){
+            setState(() {
+              this._currentIndex = index;
+            });
+          }
         },
         iconSize: 24.0, //Icon图标大小
         fixedColor: Colors.deepOrangeAccent, //选中之后的颜色
@@ -107,9 +109,11 @@ class _sunFooterTabsContentState extends State{
           //点击事件
           onPressed: (){
             //切换到分类页面
-            setState(() {
-              this._currentIndex = 2;
-            });
+            if(mounted){
+              setState(() {
+                this._currentIndex = 2;
+              });
+            }
           },
           //阴影
           //elevation: 10.0,

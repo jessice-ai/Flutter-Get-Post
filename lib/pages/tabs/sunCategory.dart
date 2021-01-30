@@ -112,7 +112,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
-        .post("http://www.shsun.xyz/tbcouponseconday/secla",
+        .post("https://www.shsun.xyz/tbcouponseconday/secla",
             // ignore: missing_return
             data: sunJsonData)
         // ignore: missing_return
@@ -185,7 +185,7 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
   _sunDioPostCateData() async {
     var sunDio = Dio();
     Response sunResponse =
-        await sunDio.post("http://www.shsun.xyz/tbcouponapi/cat");
+        await sunDio.post("https://www.shsun.xyz/tbcouponapi/cat");
     if (sunResponse.data['code'] == 200) {
       //print(sunResponse.data['data']);
       if (mounted) {
@@ -479,10 +479,10 @@ class _MyHomePageState extends State with SingleTickerProviderStateMixin {
                                   width: MediaQuery.of(context)
                                       .size
                                       .width, //宽度占满屏幕
-                                  height: MediaQuery.of(context).size.height,
+                                  height: MediaQuery.of(context).size.height-150,
                                   color: Colors.white,
                                   child: Center(
-                                    child: Text(" "),
+                                    child: Text("${_sunLoadingData}"),
                                   ),
                                 )
                               ],
