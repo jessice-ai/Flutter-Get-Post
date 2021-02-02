@@ -15,7 +15,7 @@ class sunDataSearch extends SearchDelegate<String> {
   var _sunSetState;
   int _sunUserID;
   var _dataLoadingData = "";
-
+  int _sunFavoritesStatus = 0;
   ScrollController _scrollController = new ScrollController();
   bool isReflash = false;
   bool isLoading = false;
@@ -62,7 +62,27 @@ class sunDataSearch extends SearchDelegate<String> {
           close(context, null);
         });
   }
-
+//客户收藏宝贝
+  _sunFavoritesGoods({contentID = 0}) async {
+    //只有用户登陆状态判断过了才能返回数据
+    Map sunJsonData = {"contentID": contentID, "uid": _sunUserID};
+    //print("参数:${sunJsonData}");
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "https://www.shsun.xyz/tbcouponseconday/Cobaby",
+        data: sunJsonData);
+    //print("数据:${sunResponse.data['data']}");
+    if (sunResponse.data['code'] == 200) {
+      this._sunSetState(() {
+        _sunFavoritesStatus = 1;
+      });
+    }else if(sunResponse.data['code'] == 300){
+      this._sunSetState(() {
+        _sunFavoritesStatus = 0;
+      });
+    }
+    _sunToast("${sunResponse.data['message']}");
+  }
 //优惠券结构
   Widget _getData(context, index) {
     //print(_couponData[index]["zk_final_price"]);
@@ -123,18 +143,54 @@ class sunDataSearch extends SearchDelegate<String> {
             ),
           ),
           Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
-          Container(
-            width: 50.0,
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: Colors.red, width: 1)),
-            child: Text("券${_sunGoodsList[index]["coupon_amount"]}元",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.red,
-                  //letterSpacing: 1, //字母间隙
-                )),
+          Row(
+            children: [
+              Expanded(
+                flex:2,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    //color: Colors.black,
+                    border: Border.all(color: Colors.red, width: 1)
+                  ),
+                  child: Text("优惠券${_sunGoodsList[index]["coupon_amount"]}元",
+                      style: TextStyle(
+                        fontSize: 12,
+                        //color: Colors.yellowAccent,
+                        //letterSpacing: 1, //字母间隙
+                      )),
+                ),
+              ),
+              SizedBox(width: 20,),
+              Expanded(
+                flex:1,
+                child: InkWell(
+                  child: Container(
+                    width: 10.0,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: Colors.cyan,
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.cyan, width: 1)),
+                    child: Text(_sunGoodsList[index]["Favorites"]==1?"取消":"收藏",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          //letterSpacing: 1, //字母间隙
+                        )),
+                  ),
+                  onTap: (){
+                      this._sunSetState(() {
+                        _sunGoodsList[index]["Favorites"]=_sunGoodsList[index]["Favorites"]==1?2:1;
+                      });
+                    _sunFavoritesGoods(contentID: _sunGoodsList[index]["id"]);
+                  },
+                ),
+              )
+            ],
           ),
           Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
           Row(
@@ -262,7 +318,8 @@ class sunDataSearch extends SearchDelegate<String> {
                     ),
                   ),
                   onTap: () {
-                    print("分享得");
+                    Navigator.pushNamed(context, '/sunshar',
+                        arguments: {"contentId": _sunGoodsList[index]["id"]});
                   },
                 ),
               ),

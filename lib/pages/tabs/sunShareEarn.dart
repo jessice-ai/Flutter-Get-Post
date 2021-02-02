@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_alibc/alibc_const_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +9,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:fluwx/fluwx.dart';
 import 'package:flutter_alibc/flutter_alibc.dart';
+import 'package:share/share.dart';
+
+
 
 class sunShareEarn extends StatefulWidget {
   final arguments;
@@ -23,6 +28,8 @@ class sunShareEarn extends StatefulWidget {
 
 class sunShareEarnSon extends State {
   Future<SharedPreferences> _sunPrefs = SharedPreferences.getInstance();
+  File _image;
+  List<String> imagePaths = [];
   int _sunUserID;
   var _contentId;
   List _sunContentData = [];
@@ -187,14 +194,16 @@ class sunShareEarnSon extends State {
       // );
       // shareToWeChat(model);
     }
-
   }
+
+
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     //throw UnimplementedError();
     if (this._sunContentData.length > 0) {
-      print(_sunContentData);
+      //print(_sunContentData);
     }
     return Scaffold(
       appBar: AppBar(
@@ -572,62 +581,74 @@ class sunShareEarnSon extends State {
                           SizedBox(width: 10.0,),
                           Expanded(
                             flex: 1,
-                            child: Container(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                      child: Container(
-                                        child: ClipOval(
-                                          child: Image.network(
-                                            "https://www.shsun.xyz/images/share/a004.png",
-                                            // height: 80,  //这里的宽高不是图片的宽高，结合ClipOval使用才有效果，
-                                            fit: BoxFit.cover,
+                            child: InkWell(
+                              child: Container(
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                        child: Container(
+                                          child: ClipOval(
+                                            child: Image.network(
+                                              "https://www.shsun.xyz/images/share/a004.png",
+                                              // height: 80,  //这里的宽高不是图片的宽高，结合ClipOval使用才有效果，
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                  ),
-                                  SizedBox(height: 3.0,),
-                                  Text("复制",
-                                      style:TextStyle(
-                                        //fontWeight: FontWeight.bold, //加粗
+                                        )
+                                    ),
+                                    SizedBox(height: 3.0,),
+                                    Text("复制",
+                                        style:TextStyle(
+                                          //fontWeight: FontWeight.bold, //加粗
 
-                                        fontSize:12.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                        //color:Colors.black26 //颜色使用Colors组件，设置系统自带的颜色
-                                        //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                      )
-                                  )
-                                ],
+                                          fontSize:12.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                          //color:Colors.black26 //颜色使用Colors组件，设置系统自带的颜色
+                                          //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                        )
+                                    )
+                                  ],
+                                ),
                               ),
+                              onTap: (){
+                                FlutterClipboard.copy(_keyword).then((value) {
+                                  _sunToast("淘口令复制成功！");
+                                });
+                              },
                             ),
                           ),
                           SizedBox(width: 10.0,),
                           Expanded(
                             flex: 1,
-                            child: Container(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                      child: Container(
-                                        child: ClipOval(
-                                          child: Image.network(
-                                            "https://www.shsun.xyz/images/share/a005.png",
-                                            // height: 80,  //这里的宽高不是图片的宽高，结合ClipOval使用才有效果，
-                                            fit: BoxFit.cover,
+                            child: InkWell(
+                              child: Container(
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                        child: Container(
+                                          child: ClipOval(
+                                            child: Image.network(
+                                              "https://www.shsun.xyz/images/share/a005.png",
+                                              // height: 80,  //这里的宽高不是图片的宽高，结合ClipOval使用才有效果，
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                  ),
-                                  SizedBox(height: 3.0,),
-                                  Text("其他",
-                                      style:TextStyle(
-                                        //fontWeight: FontWeight.bold, //加粗
-                                        fontSize:12.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                        //color:Colors.black26 //颜色使用Colors组件，设置系统自带的颜色
-                                        //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                      )
-                                  )
-                                ],
+                                        )
+                                    ),
+                                    SizedBox(height: 3.0,),
+                                    Text("其他",
+                                        style:TextStyle(
+                                          //fontWeight: FontWeight.bold, //加粗
+                                          fontSize:12.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                          //color:Colors.black26 //颜色使用Colors组件，设置系统自带的颜色
+                                          //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                        )
+                                    )
+                                  ],
+                                ),
                               ),
+                              onTap: () async {
+                                Share.share("${this._sunContentData[0]['ordinance']}"); //分享文字
+                              },
                             ),
                           ),
                         ],

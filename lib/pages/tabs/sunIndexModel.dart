@@ -228,7 +228,7 @@ class sunIndexModelSon extends State{
           Text(
             _sunShSunIndexData[index]["title"],
             maxLines: 2,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis, //溢出之后显示三个点
             style: TextStyle(
               fontSize: 14,
@@ -245,18 +245,18 @@ class sunIndexModelSon extends State{
                   padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.red,
-                      //border: Border.all(color: Colors.red, width: 1)
+                      //color: Colors.red,
+                      border: Border.all(color: Colors.red, width: 1)
                   ),
                   child: Text("优惠券${_sunShSunIndexData[index]["coupon_amount"]}元",
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.yellowAccent,
+                        fontSize: 12,
+                        //color: Colors.yellowAccent,
                         //letterSpacing: 1, //字母间隙
                       )),
                 ),
               ),
-              SizedBox(width: 10,), //设置行间距
+              SizedBox(width: 20,),
               Expanded(
                 flex:1,
                 child: InkWell(
@@ -270,7 +270,7 @@ class sunIndexModelSon extends State{
                         border: Border.all(color: Colors.cyan, width: 1)),
                     child: Text(_sunShSunIndexData[index]["Favorites"]==1?"取消":"收藏",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           color: Colors.white,
                           //letterSpacing: 1, //字母间隙
                         )),
@@ -399,7 +399,7 @@ class sunIndexModelSon extends State{
                 flex: 1,
                 child: InkWell(
                   child: Container(
-                    height: 24.0,
+                    padding: EdgeInsets.all(5.0),
                     decoration: BoxDecoration(
                       //border: Border.all(color: Colors.red, width: 1),//边框
                       //border: Border.all(color: Colors.white, width: 1),//边框
@@ -426,7 +426,9 @@ class sunIndexModelSon extends State{
                     ),
                   ),
                   onTap: () {
-                    print("分享得");
+                    //print("分享得");
+                    Navigator.pushNamed(context, '/sunshar',
+                        arguments: {"contentId": _sunShSunIndexData[index]["id"]});
                   },
                 ),
               ),
@@ -435,7 +437,8 @@ class sunIndexModelSon extends State{
                 flex: 1,
                 child: InkWell(
                   child: Container(
-                    height: 24.0,
+                    //height: 24.0,
+                    padding: EdgeInsets.all(5.0),
                     decoration: BoxDecoration(
                         color: Colors.red,
                         //border: Border.all(color: Colors.red, width: 1),//边框

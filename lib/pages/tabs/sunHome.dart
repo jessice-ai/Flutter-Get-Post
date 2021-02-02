@@ -70,7 +70,7 @@ class sunHomeContentState extends State
   String _dataLoading = "Loading...";
   var _dataLoadingData = "Loading...";
   List _sunShSunIndexData = []; //首页优惠券
-
+  int _sunFavoritesStatus = 0;
   //dispose生命周期函数
   //dispose 当组件销毁时，触发的生命周期函数
   @override
@@ -251,7 +251,27 @@ class sunHomeContentState extends State
       //_sunToast("网络请求异常Cate! ${sunResponse.data['message']}");
     }
   }
-
+  //客户收藏宝贝
+  _sunFavoritesGoods({contentID = 0}) async {
+    //只有用户登陆状态判断过了才能返回数据
+    Map sunJsonData = {"contentID": contentID, "uid": _sunUserID};
+    //print("参数:${sunJsonData}");
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "https://www.shsun.xyz/tbcouponseconday/Cobaby",
+        data: sunJsonData);
+    //print("数据:${sunResponse.data['data']}");
+    if (sunResponse.data['code'] == 200) {
+      setState(() {
+        _sunFavoritesStatus = 1;
+      });
+    }else if(sunResponse.data['code'] == 300){
+      setState(() {
+        _sunFavoritesStatus = 0;
+      });
+    }
+    _sunToast("${sunResponse.data['message']}");
+  }
   var _sunTabIndex = 0;
 
   _sunGetUserTaobaoauth({prourl}) async {
@@ -381,39 +401,62 @@ class sunHomeContentState extends State
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis, //溢出之后显示三个点
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   letterSpacing: 1, //字母间隙
                 ),
               ),
-              // Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
-              // Container(
-              //   //width: 50.0,
-              //   padding: EdgeInsets.all(5),
-              //   // decoration: BoxDecoration(
-              //   //     image: DecorationImage(
-              //   //         image: NetworkImage("https://www.shsun.xyz/images/a.png"),
-              //   //         fit: BoxFit.fitHeight
-              //   //     )
-              //   // ),
-              //   child: Text("券${_couponData[index]["coupon_amount"]}元",
-              //       style: TextStyle(
-              //         fontSize: 12,
-              //         color: Colors.red,
-              //         //letterSpacing: 1, //字母间隙
-              //       )),
-              // ),
-              // ListTile(
-              //   // onTap: () {
-              //   //   //命名路由跳转到某个页面
-              //   //   Navigator.pushNamed(context, '/sunRecord');
-              //   // },
-              //   leading: Icon(Icons.app_settings_alt_sharp),
-              //   title: Text("券${_couponData[index]["coupon_amount"]}元",
-              //       style: TextStyle(fontSize: 12.0, color: Colors.red)
-              //   ),
-              //
-              // ),
-              // Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
+              Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+              Row(
+                children: [
+                  Expanded(
+                    flex:2,
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        //color: Colors.red,
+                        border: Border.all(color: Colors.red, width: 1)
+                      ),
+                      child: Text("优惠券${_couponData[index]["coupon_amount"]}元",
+                          style: TextStyle(
+                            fontSize: 12,
+                            //color: Colors.yellowAccent,
+                            //letterSpacing: 1, //字母间隙
+                          )),
+                    ),
+                  ),
+                  SizedBox(width: 20,),
+                  Expanded(
+                    flex:1,
+                    child: InkWell(
+                      child: Container(
+                        width: 10.0,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Colors.cyan,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: Colors.cyan, width: 1)),
+                        child: Text(_couponData[index]["Favorites"]==1?"取消":"收藏",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              //letterSpacing: 1, //字母间隙
+                            )),
+                      ),
+                      onTap: (){
+                        if(mounted){
+                          setState(() {
+                            _couponData[index]["Favorites"]=_couponData[index]["Favorites"]==1?2:1;
+                          });
+                        }
+                        _sunFavoritesGoods(contentID: _couponData[index]["id"]);
+                      },
+                    ),
+                  )
+                ],
+              ),
               Row(
                 children: [
                   Text(
@@ -512,7 +555,7 @@ class sunHomeContentState extends State
                     flex: 1,
                     child: InkWell(
                       child: Container(
-                        height: 24.0,
+                        padding: EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
                             //border: Border.all(color: Colors.red, width: 1),//边框
                             //border: Border.all(color: Colors.white, width: 1),//边框
@@ -527,7 +570,7 @@ class sunHomeContentState extends State
                         child: Text(
                           "分享赚${_couponData[index]["estimated_New"]}元",
                           style: TextStyle(
-                            fontSize: 10.0,
+                            fontSize: 12.0,
                             color: Colors.white,
                             //letterSpacing: 1, //字母间隙
                             //fontWeight: FontWeight.bold, //加粗
@@ -539,7 +582,8 @@ class sunHomeContentState extends State
                         ),
                       ),
                       onTap: () {
-                        print("分享得");
+                        Navigator.pushNamed(context, '/sunshar',
+                            arguments: {"contentId": _couponData[index]["id"]});
                       },
                     ),
                   ),
@@ -548,7 +592,7 @@ class sunHomeContentState extends State
                     flex: 1,
                     child: InkWell(
                       child: Container(
-                        height: 24.0,
+                        padding: EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
                             color: Colors.red,
                             //border: Border.all(color: Colors.red, width: 1),//边框
@@ -563,7 +607,7 @@ class sunHomeContentState extends State
                         child: Text(
                           "自购得${_couponData[index]["estimated_New"]}元",
                           style: TextStyle(
-                            fontSize: 10.0,
+                            fontSize: 12.0,
                             color: Colors.white,
                             //letterSpacing: 1, //字母间隙
                             //fontWeight: FontWeight.bold, //加粗
@@ -703,7 +747,11 @@ class sunHomeContentState extends State
     if (this._couponCate.length != 0) {
       return Scaffold(
         appBar: AppBar(
-          //title: searchInput(),
+          title: Container(
+            child: Center(
+              child: Text("首页",),
+            ),
+          ),
           backgroundColor: Colors.white, //导航背景颜色
           // title: Text("分类"),
           bottom: TabBar(
@@ -853,7 +901,7 @@ class sunHomeContentState extends State
                                         mainAxisSpacing: 5.0, //上下两个之间距离
                                         crossAxisCount: 2, //列数2
                                         childAspectRatio:
-                                            0.6, //宽度与高度的比例，通过这个比例设置相应高度
+                                        0.53, //宽度与高度的比例，通过这个比例设置相应高度
                                       ),
                                       itemCount: _couponData.length,
                                       //指定循环的数量

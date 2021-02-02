@@ -143,6 +143,24 @@ class sunIncomeBreakdownSon extends State{
                             height: 48.0,
                             width: double.infinity,
                             alignment: Alignment.center,
+                            child: Text("关系",
+                                textAlign: TextAlign.center,
+                                style:TextStyle(
+                                  //fontWeight: FontWeight.bold, //加粗
+                                    fontSize:14.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                    color:Colors.white //颜色使用Colors组件，设置系统自带的颜色
+                                  //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                )
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.cyan,
+                            height: 48.0,
+                            width: double.infinity,
+                            alignment: Alignment.center,
                             child: Text("预估收益",
                                 textAlign: TextAlign.center,
                                 style:TextStyle(
@@ -197,6 +215,12 @@ class sunIncomeBreakdownSon extends State{
                 ),
                 Column(
                   children: this._sunBreakdown.length>0?this._sunBreakdown.map((e){
+                    var str = "";
+                    if(e["level"]==1){
+                      str="自己购物";
+                    }else{
+                      str="下级购物";
+                    }
                     return Column(
                       children: [
                         Row(
@@ -226,6 +250,22 @@ class sunIncomeBreakdownSon extends State{
                                 width: double.infinity,
                                 alignment: Alignment.center,
                                 child: Text("${e["item_category_name"]}",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      //fontWeight: FontWeight.bold, //加粗
+                                      fontSize:14.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                      //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                    )
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                height: 48.0,
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                child: Text("${str}",
                                     textAlign: TextAlign.center,
                                     style:TextStyle(
                                       //fontWeight: FontWeight.bold, //加粗

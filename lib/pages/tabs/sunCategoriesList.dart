@@ -311,7 +311,28 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
       }
     });
   }
-
+  int _sunFavoritesStatus = 0;
+  //客户收藏宝贝
+  _sunFavoritesGoods({contentID = 0}) async {
+    //只有用户登陆状态判断过了才能返回数据
+    Map sunJsonData = {"contentID": contentID, "uid": _sunUserID};
+    //print("参数:${sunJsonData}");
+    var sunDio = Dio();
+    Response sunResponse = await sunDio.post(
+        "https://www.shsun.xyz/tbcouponseconday/Cobaby",
+        data: sunJsonData);
+    //print("数据:${sunResponse.data['data']}");
+    if (sunResponse.data['code'] == 200) {
+      setState(() {
+        _sunFavoritesStatus = 1;
+      });
+    }else if(sunResponse.data['code'] == 300){
+      setState(() {
+        _sunFavoritesStatus = 0;
+      });
+    }
+    _sunToast("${sunResponse.data['message']}");
+  }
   //优惠券结构
   Widget _getData(context, index) {
     var tabIndex = this._sunTabIndex;
@@ -364,7 +385,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
             Text(
               _sonProductsList[index]["title"],
               maxLines: 2,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
               overflow: TextOverflow.ellipsis, //溢出之后显示三个点
               style: TextStyle(
                 fontSize: 14,
@@ -385,7 +406,59 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
             //         //letterSpacing: 1, //字母间隙
             //       )),
             // ),
-            Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0)),
+            Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+            Row(
+              children: [
+                Expanded(
+                  flex:2,
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.red,
+                      //border: Border.all(color: Colors.red, width: 1)
+                    ),
+                    child: Text("优惠券${_sonProductsList[index]["coupon_amount"]}元",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.yellowAccent,
+                          //letterSpacing: 1, //字母间隙
+                        )),
+                  ),
+                ),
+                SizedBox(width: 20,),
+                Expanded(
+                  flex:1,
+                  child: InkWell(
+                    child: Container(
+                      width: 10.0,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: Colors.cyan,
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.cyan, width: 1)),
+                      child: Text(_sonProductsList[index]["Favorites"]==1?"取消":"收藏",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            //letterSpacing: 1, //字母间隙
+                          )),
+                    ),
+                    onTap: (){
+                      if(mounted){
+                        setState(() {
+                          _sonProductsList[index]["Favorites"]=_sonProductsList[index]["Favorites"]==1?2:1;
+                        });
+                      }
+                      _sunFavoritesGoods(contentID: _sonProductsList[index]["id"]);
+                    },
+                  ),
+                )
+              ],
+            ),
+
             Row(
               children: [
                 Text(
@@ -483,7 +556,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                   flex: 1,
                   child: InkWell(
                     child: Container(
-                      height: 24.0,
+                      padding: EdgeInsets.all(5.0),
                       decoration: BoxDecoration(
                           //border: Border.all(color: Colors.red, width: 1),//边框
                           //border: Border.all(color: Colors.white, width: 1),//边框
@@ -510,7 +583,8 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                       ),
                     ),
                     onTap: () {
-                      print("分享得");
+                      Navigator.pushNamed(context, '/sunshar',
+                          arguments: {"contentId": _sonProductsList[index]["id"]});
                     },
                   ),
                 ),
@@ -519,7 +593,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                   flex: 1,
                   child: InkWell(
                     child: Container(
-                      height: 24.0,
+                      padding: EdgeInsets.all(5.0),
                       decoration: BoxDecoration(
                           color: Colors.red,
                           //border: Border.all(color: Colors.red, width: 1),//边框
@@ -656,7 +730,7 @@ class sunCategoriesListSon extends State with SingleTickerProviderStateMixin {
                                   mainAxisSpacing: 5.0, //上下两个之间距离
                                   crossAxisCount: 2, //列数2
                                   childAspectRatio:
-                                      3 / 5.8, //宽度与高度的比例，通过这个比例设置相应高度
+                                      0.53, //宽度与高度的比例，通过这个比例设置相应高度
                                 ),
                                 itemCount: _sonProductsList.length,
                                 //指定循环的数量
