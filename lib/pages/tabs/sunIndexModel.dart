@@ -5,6 +5,8 @@ import 'package:flutter_alibc/alibc_const_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_alibc/flutter_alibc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
+
 
 class sunIndexModel extends StatefulWidget{
   @override
@@ -544,6 +546,24 @@ class sunIndexModelSon extends State{
       }
     });
   }
+  List<Map> imageList = [
+    {
+      "image":"http://image1.nphoto.net/news/image/201011/16385228eec7c2f1.jpg",
+      "url":"https://s.click.taobao.com/y1TkAru"
+    },
+    {
+      "image":"http://image1.nphoto.net/news/image/201011/18628501ac39ef86.jpg",
+      "url":"https://s.click.taobao.com/y1TkAru"
+    },
+    {
+      "image":"http://image1.nphoto.net/news/image/201011/f856ae75444dffc9.jpg",
+      "url":"https://s.click.taobao.com/y1TkAru"
+    },
+    {
+      "image":"http://image1.nphoto.net/news/image/201011/843ebeb60f651c58.jpg",
+      "url":"https://s.click.taobao.com/y1TkAru"
+    },
+  ];
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -557,6 +577,39 @@ class sunIndexModelSon extends State{
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                //height:250, //这里的高度必须设置，否则就不显示了,如果使用AspectRatio则不用设置高度，这里使用的是AspectRatio
+                //AspectRatio 控制内部内容占满外部容器，适应所有屏幕
+                child: AspectRatio(
+                  aspectRatio: 16/9,
+                  child: Swiper(
+                    itemBuilder: (BuildContext context,int index){
+                      return new Image.network(imageList[index]['image'],fit: BoxFit.fill,);
+                    },
+                    // itemCount标识循环遍历itemBuilder次数
+                    itemCount: imageList.length,
+                    pagination: SwiperPagination(
+                        builder: DotSwiperPaginationBuilder(
+                          color: Colors.black54,
+                          activeColor: Colors.white,
+                        )), //控制底部分页器是否显示,注释掉不显示，不注释则显示
+                    //loop: true, //无限循环
+                    autoplay: true,//自动轮播
+                    //control: new SwiperControl(), //控制左右箭头是否显示,注释掉不显示，不注释则显示
+                    onTap: (index){
+                      // print(imageList[index]['url']);
+                      // print('点击了第$index个');
+                      //命名路由传值跳转到栏目列表页
+                      Navigator.pushNamed(
+                          context,
+                          '/sunWb',
+                          arguments: {
+                            "url":imageList[index]['url'],
+                          });
+                    },
+                  ),
+                ),
+              ),
               Column(
                 children: [
                   //Divider(height: 1.0,color: Colors.black12,), //线条

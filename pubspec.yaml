@@ -45,8 +45,6 @@ dependencies:
   clipboard: ^0.1.2+8
   share: ^0.6.5+4
 
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

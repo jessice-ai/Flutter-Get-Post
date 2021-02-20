@@ -747,12 +747,13 @@ class sunHomeContentState extends State
     if (this._couponCate.length != 0) {
       return Scaffold(
         appBar: AppBar(
+          //backgroundColor: Colors.pink,
           title: Container(
             child: Center(
               child: Text("首页",),
             ),
           ),
-          backgroundColor: Colors.white, //导航背景颜色
+          //backgroundColor: Colors.white, //导航背景颜色
           // title: Text("分类"),
           bottom: TabBar(
             indicatorColor: Colors.red,
@@ -776,8 +777,9 @@ class sunHomeContentState extends State
             new Container(
                 child: FlatButton.icon(
               label: Text("搜索"),
-              color: Colors.white, //背景颜色
+              //color: Colors.white, //背景颜色
               onPressed: () {
+                //Navigator.pushNamed(context, '/sunSearchShow');
                 showSearch(context: context, delegate: sunDataSearch());
               },
               icon: Icon(
@@ -791,7 +793,7 @@ class sunHomeContentState extends State
           controller: this._tabController, //注意，必须得加
           children: this._couponCate.map((e) {
             if (_sunTabIndex == 0) {
-              //首页代码模块
+              //首页代码模块 推荐
               return sunIndexModel();
             } else {
               //print(_secondaryCouponCate.length);
