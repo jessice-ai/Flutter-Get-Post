@@ -120,7 +120,7 @@ class sunDataSearch extends SearchDelegate<String> {
             onTap: () {
               //命名路由传值给详情页
               Navigator.pushNamed(context, '/sunproductcontent',
-                  arguments: {"contentId": _sunGoodsList[index]["id"]});
+                  arguments: {"contentId": _sunGoodsList[index]["item_id"]});
             },
           ),
 
@@ -175,7 +175,7 @@ class sunDataSearch extends SearchDelegate<String> {
                         color: Colors.cyan,
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(color: Colors.cyan, width: 1)),
-                    child: Text(_sunGoodsList[index]["Favorites"]==1?"取消":"收藏",
+                    child: Text(_sunGoodsList[index]["Favorites"]==1?"已收藏":"收藏",
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -664,7 +664,6 @@ class sunDataSearch extends SearchDelegate<String> {
   // }
   @override
   Widget buildSuggestions(BuildContext context) {
-
 
     // TODO: implement buildSuggestions
     //throw UnimplementedError();

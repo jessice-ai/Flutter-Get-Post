@@ -44,6 +44,7 @@ class sunProductDetailsPageSon extends State {
   String _sunWxurl = "";
   String _sunWxtitle = "";
   String _thumnail = "";
+  int is_isset=1; //商品是否存在
   String _dataLoading = "Loading...";
   List _sonFavoritesList = [];
 
@@ -77,13 +78,24 @@ class sunProductDetailsPageSon extends State {
       this._sunUserID = result;
       //print("用户ID:${result}");
       _contentId = this.arguments["contentId"];
+      //print("aaaaaaaa-----${_contentId}");
       _sunGetSonGoodsList();
       _sunGetGoodsDetail(contentID: _contentId).then((result)  {
         //print(result);
-        setState(() {
-          this._sunContentData = result;
-          _sunFavoritesStatus = result[0]['collectionsStatus']; //更新收藏状态
-        });
+        if(result[0]['is_isset']==2){
+          //商品不存在
+          if(mounted){
+            setState(() {
+              this.is_isset=2;
+            });
+          }
+        }else{
+          //商品存在
+          setState(() {
+            this._sunContentData = result;
+            _sunFavoritesStatus = result[0]['collectionsStatus']; //更新收藏状态
+          });
+        }
 
       });
 
@@ -96,7 +108,7 @@ class sunProductDetailsPageSon extends State {
           _scrollController.position.maxScrollExtent) {
         this._sunPage++;
         this._sunGetSonGoodsList();
-        print("aaa");
+        //print("aaa");
       }
     });
   }
@@ -114,7 +126,7 @@ class sunProductDetailsPageSon extends State {
 
   _sunGetGoodsDetail({contentID = 0}) async {
     //只有用户登陆状态判断过了才能返回数据
-    Map sunJsonData = {"contentID": contentID, "uid": _sunUserID};
+    Map sunJsonData = {"item_id": contentID, "uid": _sunUserID};
     //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio.post(
@@ -213,7 +225,7 @@ class sunProductDetailsPageSon extends State {
       "nick": nick,
       "topAccessToken": topAccessToken
     };
-    print("参数:${sunJsonData}");
+    //print("参数:${sunJsonData}");
     var sunDio = Dio();
     Response sunResponse = await sunDio
         .post("https://www.shsun.xyz/tbcouponseconday/getItb",
@@ -269,13 +281,13 @@ class sunProductDetailsPageSon extends State {
       var model = WeChatShareImageModel(
           WeChatImage.network(_thumnail),
         title: _sunWxtitle,
-        description: "描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述",
+        description: "",
         scene: scene,
       );
       var model2 = WeChatShareImageModel(
         WeChatImage.network(_thumnail),
         title: _sunWxtitle,
-        description: "描述22222描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述描述",
+        description: "",
         scene: scene,
       );
       shareToWeChat(model);
@@ -297,7 +309,7 @@ class sunProductDetailsPageSon extends State {
       this._sunPage = 1;
     }
     Map sunJsonData = {"uid": _sunUserID, "page": _sunPage};
-    print("参数:${sunJsonData}");
+    //print("参数:${sunJsonData}");
 
     var sunDio = Dio();
     Response sunResponse = await sunDio
@@ -434,7 +446,7 @@ class sunProductDetailsPageSon extends State {
                     context,
                     '/sunproductcontent',
                     arguments: {
-                      "contentId":_sonFavoritesList[index]["id"]
+                      "contentId":_sonFavoritesList[index]["item_id"]
                     });
               },
             ),
@@ -489,7 +501,7 @@ class sunProductDetailsPageSon extends State {
                           color: Colors.cyan,
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: Colors.cyan, width: 1)),
-                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"取消":"收藏",
+                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"已收藏":"收藏",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white,
@@ -696,403 +708,416 @@ class sunProductDetailsPageSon extends State {
   Widget build(BuildContext context) {
     // TODO: implement build
     //throw UnimplementedError();
-    if (this._sunContentData.length > 0) {
+    if(this.is_isset==1){
+      if (this._sunContentData.length > 0) {
 
-      String small_images = this._sunContentData[0]['small_images'];
-      _sunSmallImage = json.decode(small_images);
-      //print("${this._sunContentData[0]}");
-      //print("${this._sunSmallImage.length} 张图片");
-      var _sunCoPrice = _sunContentData[0]["zk_final_price"] -
-          _sunContentData[0]["coupon_amount"];
-      _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
-      return Scaffold(
-        appBar: AppBar(
-          leading: new IconButton(
-            icon: new Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.of(context).pop(),
+        String small_images = this._sunContentData[0]['small_images'];
+        _sunSmallImage = json.decode(small_images);
+        //print("${this._sunContentData[0]}");
+        //print("${this._sunSmallImage.length} 张图片");
+        var _sunCoPrice = _sunContentData[0]["zk_final_price"] -
+            _sunContentData[0]["coupon_amount"];
+        _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
+        return Scaffold(
+          appBar: AppBar(
+            leading: new IconButton(
+              icon: new Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            backgroundColor: Colors.transparent,
+            //backgroundColor: Colors.white.withOpacity(0.1),
+            elevation: 0,
+            // title: Text("aaa"),
           ),
-          backgroundColor: Colors.transparent,
-          //backgroundColor: Colors.white.withOpacity(0.1),
-          elevation: 0,
-          // title: Text("aaa"),
-        ),
-        extendBodyBehindAppBar: true,
-        backgroundColor: Colors.white,
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width,
-                      child: Swiper(
-                        itemBuilder: _swiperBuilder,
-                        itemCount: this._sunSmallImage.length,
-                        //pagination 控制底部分页器是否显示,注释掉不显示，不注释则显示
-                        pagination: SwiperPagination(
-                            builder: DotSwiperPaginationBuilder(
-                          color: Colors.black54,
-                          activeColor: Colors.redAccent,
+          extendBodyBehindAppBar: true,
+          backgroundColor: Colors.white,
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.width,
+                        child: Swiper(
+                          itemBuilder: _swiperBuilder,
+                          itemCount: this._sunSmallImage.length,
+                          //pagination 控制底部分页器是否显示,注释掉不显示，不注释则显示
+                          pagination: SwiperPagination(
+                              builder: DotSwiperPaginationBuilder(
+                                color: Colors.black54,
+                                activeColor: Colors.redAccent,
+                              )),
+                          //control: new SwiperControl(), //控制左右箭头是否显示,注释掉不显示，不注释则显示
+                          scrollDirection: Axis.horizontal,
+                          //autoplay: true,
+                          onTap: (index) => print('点击了第$index个'),
                         )),
-                        //control: new SwiperControl(), //控制左右箭头是否显示,注释掉不显示，不注释则显示
-                        scrollDirection: Axis.horizontal,
-                        //autoplay: true,
-                        onTap: (index) => print('点击了第$index个'),
-                      )),
-                  Column(
-                    children: [
-                      //价格栏
-                      Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
-                      Container(
-                        height: 46.0,
-                        alignment: Alignment.center,
-                        //color: Colors.red,
-                        child: Container(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(10, 0, 0, 0)),
-                                    Text("¥",
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                            color: Colors
-                                                .red //颜色使用Colors组件，设置系统自带的颜色
-                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                            )),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(1, 0, 0, 0)),
-                                    Text("${_sunCoPrice}",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            //加粗
-                                            fontSize: 24.0,
-                                            //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                            color: Colors
-                                                .red //颜色使用Colors组件，设置系统自带的颜色
-                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                            )),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(5, 0, 0, 0)),
-                                    Text("起",
-                                        style: TextStyle(
-                                            fontSize: 14.0,
-                                            //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                            color: Colors
-                                                .red //颜色使用Colors组件，设置系统自带的颜色
-                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                            )),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(5, 0, 0, 0)),
-                                    Text(
-                                        "¥${this._sunContentData[0]['reserve_price']}",
-                                        style: TextStyle(
-                                          fontSize: 14.0,
-                                          //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                                          decoration:
-                                              TextDecoration.lineThrough, //删除线
-                                          //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
-                                        ))
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Container(
-                                  alignment: Alignment.centerRight,
+                    Column(
+                      children: [
+                        //价格栏
+                        Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+                        Container(
+                          height: 46.0,
+                          alignment: Alignment.center,
+                          //color: Colors.red,
+                          child: Container(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 1,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Text(
-                                          "已售件${this._sunContentData[0]['volume']}件"),
                                       Padding(
                                           padding:
-                                              EdgeInsets.fromLTRB(0, 0, 10, 0)),
+                                          EdgeInsets.fromLTRB(10, 0, 0, 0)),
+                                      Text("¥",
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                              color: Colors
+                                                  .red //颜色使用Colors组件，设置系统自带的颜色
+                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                          )),
+                                      Padding(
+                                          padding:
+                                          EdgeInsets.fromLTRB(1, 0, 0, 0)),
+                                      Text("${_sunCoPrice}",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              //加粗
+                                              fontSize: 24.0,
+                                              //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                              color: Colors
+                                                  .red //颜色使用Colors组件，设置系统自带的颜色
+                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                          )),
+                                      Padding(
+                                          padding:
+                                          EdgeInsets.fromLTRB(5, 0, 0, 0)),
+                                      Text("起",
+                                          style: TextStyle(
+                                              fontSize: 14.0,
+                                              //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                              color: Colors
+                                                  .red //颜色使用Colors组件，设置系统自带的颜色
+                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                          )),
+                                      Padding(
+                                          padding:
+                                          EdgeInsets.fromLTRB(5, 0, 0, 0)),
+                                      Text(
+                                          "¥${this._sunContentData[0]['reserve_price']}",
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                                            decoration:
+                                            TextDecoration.lineThrough, //删除线
+                                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                                          ))
                                     ],
                                   ),
                                 ),
-                              ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                            "已售件${this._sunContentData[0]['volume']}件"),
+                                        Padding(
+                                            padding:
+                                            EdgeInsets.fromLTRB(0, 0, 10, 0)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      //标题栏
-                      new Container(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "${this._sunContentData[0]["title"]}",
-                          style: TextStyle(
-                            fontSize:
-                                16.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
-                            //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                        //标题栏
+                        new Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "${this._sunContentData[0]["title"]}",
+                            style: TextStyle(
+                              fontSize:
+                              16.0, //Flutter 中所有数字，都是double类型，所以后边都要加点零，否则会报错；40.0 表示40px
+                              //color:Color.fromRGBO(r, g, b, opacity)  //color:Color.fromRGBO(r, g, b, opacity) 颜色也可自定义，RGB，透明度
+                            ),
+                            softWrap: true,
                           ),
-                          softWrap: true,
                         ),
-                      ),
 
-                      //商品详情
-                      Container(
-                          child: this._sunSmallImage.length > 0
-                              ? ListView(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  children: this._sunSmallImage.map((value) {
-                                    return Image.network("${value['url']}");
-                                  }).toList())
-                              : Text("加载中")),
-                      //底部定位
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  //猜你喜欢
-                  Container(
-                    child: Center(
-                      child: Text("相似宝贝"),
+                        //商品详情
+                        Container(
+                            child: this._sunSmallImage.length > 0
+                                ? ListView(
+                                physics: NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                children: this._sunSmallImage.map((value) {
+                                  return Image.network("${value['url']}");
+                                }).toList())
+                                : Text("加载中")),
+                        //底部定位
+                      ],
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
-                    child: Container(
-                      color: Colors.white,
-                      //height: 600.0,
-                      width: double.infinity,
-                      //强制container撑满整个屏幕
-                      alignment: Alignment.center,
-                      child: this._sonFavoritesList.length>0?GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        //padding: EdgeInsets.all(10),
-                        //使用padding 把上下左右留出空白距离
-                        //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
-                        gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisSpacing: 10.0, //左右两个之间距离
-                          //mainAxisSpacing: 5.0, //上下两个之间距离
-                          crossAxisCount: 2, //列数2
-                          childAspectRatio: 0.53, //宽度与高度的比例，通过这个比例设置相应高度
-                        ),
-                        itemCount: _sonFavoritesList.length,
-                        //指定循环的数量
-                        itemBuilder: (BuildContext context, int index) {
-                          //如果循环到最后一个宝贝，显示加载图标
-                          return this._getData(context, index);
-                        },
-                        // controller: _scrollController,
-                      ):Container(),
+                    SizedBox(
+                      height: 20.0,
                     ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 10.0, 0, 40.0),
+                    //猜你喜欢
+                    Container(
                       child: Center(
-                        child: Text("${_dataLoading}"),
+                        child: Text("相似宝贝"),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0.0, 50.0, 0.0, 10.0),
-                  ),
-                ],
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
+                      child: Container(
+                        color: Colors.white,
+                        //height: 600.0,
+                        width: double.infinity,
+                        //强制container撑满整个屏幕
+                        alignment: Alignment.center,
+                        child: this._sonFavoritesList.length>0?GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          //padding: EdgeInsets.all(10),
+                          //使用padding 把上下左右留出空白距离
+                          //SliverGridDelegateWithFixedCrossAxisCount 这个单词比较长，用的时候拷贝下就好
+                          gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: 10.0, //左右两个之间距离
+                            //mainAxisSpacing: 5.0, //上下两个之间距离
+                            crossAxisCount: 2, //列数2
+                            childAspectRatio: 0.53, //宽度与高度的比例，通过这个比例设置相应高度
+                          ),
+                          itemCount: _sonFavoritesList.length,
+                          //指定循环的数量
+                          itemBuilder: (BuildContext context, int index) {
+                            //如果循环到最后一个宝贝，显示加载图标
+                            return this._getData(context, index);
+                          },
+                          // controller: _scrollController,
+                        ):Container(),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10.0, 0, 40.0),
+                        child: Center(
+                          child: Text("${_dataLoading}"),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0.0, 50.0, 0.0, 10.0),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            //底部固定
-            Positioned(
-              bottom: 0,
-              width: MediaQuery.of(context).size.width,
-              child: Container(
+              //底部固定
+              Positioned(
+                bottom: 0,
                 width: MediaQuery.of(context).size.width,
-                height: 66.0,
-                color: Colors.white,
                 child: Container(
-                  decoration: ShapeDecoration(
+                  width: MediaQuery.of(context).size.width,
+                  height: 66.0,
+                  color: Colors.white,
+                  child: Container(
+                    decoration: ShapeDecoration(
                       //border: Border.all(color:Colors.black26,width: 1), //加边框
                       //四个边框分别对应粗细宽度
-                      shape: Border(
-                          top: BorderSide(
-                              color: Colors.black12,
-                              style: BorderStyle.solid,
-                              width: 1),
-                          bottom: BorderSide(
-                              color: Colors.black12,
-                              style: BorderStyle.solid,
-                              width: 0),
-                          right: BorderSide(
-                              color: Colors.black12,
-                              style: BorderStyle.solid,
-                              width: 0),
-                          left: BorderSide(
-                              color: Colors.black12,
-                              style: BorderStyle.solid,
-                              width: 0))),
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 0, right: 0, top: 5, bottom: 5),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: InkWell(
-                            child: Column(
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
-                                Icon(
-                                  Icons.home,
-                                  color: Colors.black,
-                                ),
-                                Text(
-                                  "首页",
-                                  style: TextStyle(fontSize: 12.0),
-                                )
-                              ],
+                        shape: Border(
+                            top: BorderSide(
+                                color: Colors.black12,
+                                style: BorderStyle.solid,
+                                width: 1),
+                            bottom: BorderSide(
+                                color: Colors.black12,
+                                style: BorderStyle.solid,
+                                width: 0),
+                            right: BorderSide(
+                                color: Colors.black12,
+                                style: BorderStyle.solid,
+                                width: 0),
+                            left: BorderSide(
+                                color: Colors.black12,
+                                style: BorderStyle.solid,
+                                width: 0))),
+                    child: Container(
+                      padding:
+                      EdgeInsets.only(left: 0, right: 0, top: 5, bottom: 5),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: InkWell(
+                              child: Column(
+                                children: [
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
+                                  Icon(
+                                    Icons.home,
+                                    color: Colors.black,
+                                  ),
+                                  Text(
+                                    "首页",
+                                    style: TextStyle(fontSize: 12.0),
+                                  )
+                                ],
+                              ),
+                              onTap: () {
+                                //命名路由传值跳转到首页
+                                Navigator.pushNamed(context, '/sunTags');
+                              },
                             ),
-                            onTap: () {
-                              //命名路由传值跳转到首页
-                              Navigator.pushNamed(context, '/sunTags');
-                            },
                           ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: InkWell(
-                            child: Column(
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
-                                _sunFavoritesStatus == 1
-                                    ? Icon(
-                                        Icons.favorite, //实心
-                                        //Icons.favorite_border 空心 Icons.favorite 实心
-                                        color: Colors.red,
-                                      )
-                                    : Icon(
-                                        Icons.favorite_border, //空心
-                                        //Icons.favorite_border 空心 Icons.favorite 实心
-                                        color: Colors.black,
-                                      ),
-                                Text("收藏", style: TextStyle(fontSize: 12.0))
-                              ],
+                          Expanded(
+                            flex: 1,
+                            child: InkWell(
+                              child: Column(
+                                children: [
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 4, 0, 0)),
+                                  _sunFavoritesStatus == 1
+                                      ? Icon(
+                                    Icons.favorite, //实心
+                                    //Icons.favorite_border 空心 Icons.favorite 实心
+                                    color: Colors.red,
+                                  )
+                                      : Icon(
+                                    Icons.favorite_border, //空心
+                                    //Icons.favorite_border 空心 Icons.favorite 实心
+                                    color: Colors.black,
+                                  ),
+                                  Text("收藏", style: TextStyle(fontSize: 12.0))
+                                ],
+                              ),
+                              onTap: () {
+                                _sunFavoritesGoods(
+                                    contentID: _sunContentData[0]["id"]);
+                              },
                             ),
-                            onTap: () {
-                              _sunFavoritesGoods(
-                                  contentID: _sunContentData[0]["id"]);
-                            },
                           ),
-                        ),
-                        Padding(padding: EdgeInsets.fromLTRB(0, 0, 5, 0)),
-                        Expanded(
-                          flex: 2,
-                          child: InkWell(
-                            child: Container(
-                              height: 36.0,
-                              decoration: BoxDecoration(
+                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 5, 0)),
+                          Expanded(
+                            flex: 2,
+                            child: InkWell(
+                              child: Container(
+                                height: 36.0,
+                                decoration: BoxDecoration(
                                   //border: Border.all(color: Colors.red, width: 1),//边框
                                   //border: Border.all(color: Colors.white, width: 1),//边框
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.all(
-                                    //圆角
-                                    Radius.circular(10.0),
-                                  )
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.all(
+                                      //圆角
+                                      Radius.circular(10.0),
+                                    )
                                   //borderRadius: BorderRadius.horizontal(left: Radius.circular(70.0),right: Radius.circular(0.0)), //左侧半圆，右侧不变
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "分享赚${_sunContentData[0]["estimated_New"]}元",
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.white,
+                                    letterSpacing: 2, //字母间隙
+                                    //fontWeight: FontWeight.bold, //加粗
+                                    //fontStyle: FontStyle.italic, //倾斜
+                                    //decoration: TextDecoration.lineThrough, //删除线
+                                    //decorationColor:Colors.deepOrange,//删除线颜色
+                                    //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
                                   ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "分享赚${_sunContentData[0]["estimated_New"]}元",
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.white,
-                                  letterSpacing: 2, //字母间隙
-                                  //fontWeight: FontWeight.bold, //加粗
-                                  //fontStyle: FontStyle.italic, //倾斜
-                                  //decoration: TextDecoration.lineThrough, //删除线
-                                  //decorationColor:Colors.deepOrange,//删除线颜色
-                                  //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
                                 ),
                               ),
+                              onTap: () {
+                                Navigator.pushNamed(context, '/sunshar',
+                                    arguments: {"contentId": _sunContentData[0]["id"]});
+                                // _sunGetUserTaobaoauth(
+                                //     itemid: _sunContentData[0]["item_id"],status: 1);
+                                // _sunWxtitle = "${this._sunContentData[0]["title"]}";
+                                //openWeChatApp();
+                                //print("分享得");
+                              },
                             ),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/sunshar',
-                                  arguments: {"contentId": _sunContentData[0]["id"]});
-                              // _sunGetUserTaobaoauth(
-                              //     itemid: _sunContentData[0]["item_id"],status: 1);
-                              // _sunWxtitle = "${this._sunContentData[0]["title"]}";
-                              //openWeChatApp();
-                              //print("分享得");
-                            },
                           ),
-                        ),
-                        Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
-                        Expanded(
-                          flex: 2,
-                          child: InkWell(
-                            child: Container(
-                              height: 36.0,
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  //border: Border.all(color: Colors.red, width: 1),//边框
-                                  //border: Border.all(color: Colors.red, width: 1),//边框
-                                  borderRadius: BorderRadius.all(
-                                    //圆角
-                                    Radius.circular(10.0),
-                                  )
+                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
+                          Expanded(
+                            flex: 2,
+                            child: InkWell(
+                              child: Container(
+                                height: 36.0,
+                                decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    //border: Border.all(color: Colors.red, width: 1),//边框
+                                    //border: Border.all(color: Colors.red, width: 1),//边框
+                                    borderRadius: BorderRadius.all(
+                                      //圆角
+                                      Radius.circular(10.0),
+                                    )
                                   //borderRadius: BorderRadius.horizontal(left: Radius.circular(0.0),right: Radius.circular(70.0)), //左侧半圆，右侧不变
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "自购得${_sunContentData[0]["estimated_New"]}元",
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.white,
+                                    letterSpacing: 2, //字母间隙
+                                    //fontWeight: FontWeight.bold, //加粗
+                                    //fontStyle: FontStyle.italic, //倾斜
+                                    //decoration: TextDecoration.lineThrough, //删除线
+                                    //decorationColor:Colors.deepOrange,//删除线颜色
+                                    //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
                                   ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "自购得${_sunContentData[0]["estimated_New"]}元",
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.white,
-                                  letterSpacing: 2, //字母间隙
-                                  //fontWeight: FontWeight.bold, //加粗
-                                  //fontStyle: FontStyle.italic, //倾斜
-                                  //decoration: TextDecoration.lineThrough, //删除线
-                                  //decorationColor:Colors.deepOrange,//删除线颜色
-                                  //decorationStyle: TextDecorationStyle.dashed, //删除线改成虚线
                                 ),
                               ),
+                              onTap: () async {
+                                _sunGetUserTaobaoauth(
+                                    itemid: _sunContentData[0]["item_id"],status: 2);
+                                // print("自购赚");
+                              },
                             ),
-                            onTap: () async {
-                              _sunGetUserTaobaoauth(
-                                  itemid: _sunContentData[0]["item_id"],status: 2);
-                              // print("自购赚");
-                            },
                           ),
-                        ),
-                        Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
-                      ],
+                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            )
-          ],
-        ),
-      );
-    } else {
+              )
+            ],
+          ),
+        );
+      } else {
+        return Scaffold(
+          body: Container(
+            child: Center(
+              child: Text("加载中..."),
+            ),
+          ),
+        );
+      }
+    }else{
+      //商品不存在
       return Scaffold(
         body: Container(
           child: Center(
-            child: Text("加载中..."),
+            child: Text("商品已被删除！"),
           ),
         ),
       );
     }
+
+
   }
 
   Widget _swiperBuilder(BuildContext context, int index) {

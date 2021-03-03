@@ -349,8 +349,10 @@ class sunHomeContentState extends State
     } else {
       if (_couponData.isNotEmpty) {
         //print(_couponData[index]["zk_final_price"]);
+
         var _sunCoPrice = _couponData[index]["zk_final_price"] -
             _couponData[index]["coupon_amount"];
+
         _sunCoPrice = _sunCoPrice.toStringAsFixed(1);
         var price = _sunCoPrice.toString();
         //print(_sunCoPrice);
@@ -383,7 +385,7 @@ class sunHomeContentState extends State
                 onTap: () {
                   //命名路由传值给详情页
                   Navigator.pushNamed(context, '/sunproductcontent',
-                      arguments: {"contentId": _couponData[index]["id"]});
+                      arguments: {"contentId": _couponData[index]["item_id"]});
                 },
               ),
 
@@ -438,7 +440,7 @@ class sunHomeContentState extends State
                             color: Colors.cyan,
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(color: Colors.cyan, width: 1)),
-                        child: Text(_couponData[index]["Favorites"]==1?"取消":"收藏",
+                        child: Text(_couponData[index]["Favorites"]==1?"已收藏":"收藏",
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white,
@@ -779,8 +781,8 @@ class sunHomeContentState extends State
               label: Text("搜索"),
               //color: Colors.white, //背景颜色
               onPressed: () {
-                //Navigator.pushNamed(context, '/sunSearchShow');
-                showSearch(context: context, delegate: sunDataSearch());
+                Navigator.pushNamed(context, '/sunSearchShow');
+                //showSearch(context: context, delegate: sunDataSearch());
               },
               icon: Icon(
                 Icons.search,

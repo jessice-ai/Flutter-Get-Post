@@ -102,7 +102,7 @@ class sunIndexModelSon extends State{
           "uid": this._sunUserID,
           "page": _sunPage
         };
-        print("POST值: ${sunJsonData}");
+        //print("POST值: ${sunJsonData}");
         sunResponse = await sunDio
         // ignore: missing_return
             .post("https://www.shsun.xyz/tb/getshindex", data: sunJsonData).then((value){
@@ -215,7 +215,7 @@ class sunIndexModelSon extends State{
             onTap: () {
               //命名路由传值给详情页
               Navigator.pushNamed(context, '/sunproductcontent',
-                  arguments: {"contentId": _sunShSunIndexData[index]["id"]});
+                  arguments: {"contentId": _sunShSunIndexData[index]["item_id"]});
             },
           ),
 
@@ -270,7 +270,7 @@ class sunIndexModelSon extends State{
                         color: Colors.cyan,
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(color: Colors.cyan, width: 1)),
-                    child: Text(_sunShSunIndexData[index]["Favorites"]==1?"取消":"收藏",
+                    child: Text(_sunShSunIndexData[index]["Favorites"]==1?"已收藏":"收藏",
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,

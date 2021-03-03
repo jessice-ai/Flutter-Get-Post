@@ -252,7 +252,7 @@ class FirstScreenSon extends State with SingleTickerProviderStateMixin {
               onTap: () {
                 //命名路由传值给详情页
                 Navigator.pushNamed(context, '/sunproductcontent',
-                    arguments: {"contentId": _sonFavoritesList[index]["id"]});
+                    arguments: {"contentId": _sonFavoritesList[index]["item_id"]});
               },
             ),
 
@@ -307,7 +307,7 @@ class FirstScreenSon extends State with SingleTickerProviderStateMixin {
                           color: Colors.cyan,
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: Colors.cyan, width: 1)),
-                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"取消":"收藏",
+                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"已收藏":"收藏",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white,

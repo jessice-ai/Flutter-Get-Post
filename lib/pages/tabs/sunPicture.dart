@@ -141,7 +141,7 @@ class sunPictureSon extends State{
         if (mounted) {
           setState(() {
             _sunPage--;
-            _dataLoading = "没有数据";
+            _dataLoading = "没有更多数据";
             isLoading = false;
           });
         }
@@ -240,7 +240,7 @@ class sunPictureSon extends State{
                     context,
                     '/sunproductcontent',
                     arguments: {
-                      "contentId":_sonFavoritesList[index]["id"]
+                      "contentId":_sonFavoritesList[index]["item_id"]
                     });
               },
             ),
@@ -295,7 +295,7 @@ class sunPictureSon extends State{
                           color: Colors.cyan,
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: Colors.cyan, width: 1)),
-                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"取消":"收藏",
+                      child: Text(_sonFavoritesList[index]["Favorites"]==1?"收藏":"已收藏",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white,
